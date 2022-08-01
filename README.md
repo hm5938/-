@@ -39,8 +39,8 @@
 |로그인했을 때 개인정보 전달|POST|/login|ID, PW|msg: 로그인 완료|
 맛집 추천|POST|/reviews|URL, 카테고리, 별점, 코멘트, 추천자 ID|msg: 등록 완료|
 |리뷰 작성(평점)|POST|/reviews|리뷰 , 별점, 작성자 ID|msg: 등록 완료
-|리뷰 목록 조회|GET|/review| - |전체 리뷰 리스  
-|맛집 검색|GE|T  /reviews|query = 식당 이름|검색 결과 식당 리스트|
+|리뷰 목록 조회|GET|/review| - |전체 리뷰 리스트
+|맛집 검색|GET|  /reviews|query = 식당 이름|검색 결과 식당 리스트|
 맛집 목록 조회|GET|/reviews|- |전체 결과 식당 리스트|
 <br/>
                                       
