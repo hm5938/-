@@ -1,0 +1,74 @@
+<!--show, hide로 페이지 뜨게 하기??-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 페이지</title>
+    <style>
+        .login_title_t {
+            font-weight: bold;
+            font-size: 22px;
+            display: inline-block;
+            padding-top: 5px;
+        }
+        .login_title_a {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+        .login_title_a > a {
+            font-weight: bold;
+        }
+        .login_btn {
+            margin-top: 10px;
+        }
+        .login_btn > button {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+        .signup {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+        .signup:hover {
+            border: 2px solid;
+        }
+        .login_box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login_box">
+        <div>
+        <p class="login_title_t">로그인 후 맛집 추천을 남겨주세요!</p>
+        </div>
+        <div>
+            <input type="text"/>
+        </div>
+        <div>
+            <input type="text"/>
+        </div>
+<!--        로그인 기능 넣기-->
+        <div class="login_btn">
+            <button>로그인</button>
+        </div>
+        <div class="login_title_a">
+            <a>아직 회원이 아니라면?</a>
+        </div>
+<!--        회원가입 페이지로 이동-->
+        <div>
+            <button class="signup">회원가입하러 가기</button>
+        </div>
+    </div>
+</body>
+</html>
