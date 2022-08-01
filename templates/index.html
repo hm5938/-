@@ -1,10 +1,248 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <title></title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .title {
+            width: 100%;
+            height: 250px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTdfMTAx%2FMDAxNjU4MDYwMTA3NDcw.qGAsWERrjfXUe-E2QfBBeUBecs0v4-pObX9Sh_09HTkg.rwbgCntnb6UIOSJOb6oG9h03SRZQdOf0mD-d6qybB9wg.PNG.soomskin%2F20220114_231213.png&type=sc960_832');
+            background-position: center;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .title > button {
+            width: 200px;
+            height: 50px;
+
+            background-color: transparent;
+            color: white;
+
+            border-radius: 50px;
+            border: 1px solid white;
+
+            margin-top: 10px;
+        }
+
+        .title > button:hover {
+            border: 2px solid white;
+        }
+
+        .comment {
+            color: gray;
+        }
+
+        .cards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+        }
+    </style>
 </head>
 <body>
+<div class="title">
+    <h1>맛집 가이드 (가제) </h1>
+    <button onclick="open_box()">맛집 추천하기</button>
+</div>
+<div class ="category">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">category</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
+        </li>
+           <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">피자</a>
+        </li>
+               <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">치킨</a>
+        </li>
+               <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">야식</a>
+        </li>
+               <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">양식</a>
+        </li>
+               <li class="nav-item">
+          <a class="nav-link " aria-current="page" href="#">아시안</a>
+        </li>
+                     <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
+        </li>
+                         <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">도시락</a>
+        </li>
+                         <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">분식</a>
+        </li>
+                         <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
+        </li>
+                         <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
+        </li>
+           <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">고기</a>
+        </li>
+              <li class="nav-item">
+          <a class="nav-link"  aria-current="page" href="#">중식</a>
+        </li>
+      </ul>
+      <span class="navbar-text">
+        여기에 다른 문구 넣을 수 있어요
+      </span>
+    </div>
+  </div>
+</nav>
+</div>
+<div class="cards">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+          <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+                <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
 
+    </div>
+</div>
 </body>
 </html>
