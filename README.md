@@ -49,7 +49,7 @@
 
 ## 🛠️기술 스택
 - View: HTML5, CSS3, Javascript 
-- Framework: Flask()
+- Framework: Flask(2.1.3)
 - Database: MongoDB
 - Server: AWS EC2
-- etc: JWT(), jQuery, jinja2()
+- etc: JWT(), jQuery, jinja2(3.1.2), pymongo(4.2.0), dnspython(2.2.1)
