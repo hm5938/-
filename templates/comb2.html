@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/def66b134a.js" crossorigin="anonymous"></script>
+    <title></title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        /*로그인*/
+        .login {
+            color: black;
+        }
+
+        .login_title_t {
+            font-weight: bold;
+            font-size: 22px;
+            display: inline-block;
+            padding-top: 5px;
+        }
+
+        .login_title_a {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .login_title_a > a {
+            font-weight: bold;
+        }
+
+        .login_btn {
+            margin-top: 10px;
+        }
+
+        .login_btn > button {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+
+        .signup {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+
+        .signup:hover {
+            border: 2px solid;
+        }
+
+        .login_box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-a {
+            color: black;
+            font-weight: bold;
+        }
+
+        .login {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 20px;
+            color: inherit;
+        }
+
+        .login > a {
+            text-decoration-line: none;
+            color: white;
+        }
+
+        .login > a:hover {
+            font-size: 24px;
+            color: white;
+        }
+
+        .title {
+            width: 100%;
+            height: 400px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTdfMTAx%2FMDAxNjU4MDYwMTA3NDcw.qGAsWERrjfXUe-E2QfBBeUBecs0v4-pObX9Sh_09HTkg.rwbgCntnb6UIOSJOb6oG9h03SRZQdOf0mD-d6qybB9wg.PNG.soomskin%2F20220114_231213.png&type=sc960_832');
+            background-position: center;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .title > button {
+            width: 200px;
+            height: 50px;
+
+            background-color: transparent;
+            color: white;
+
+            border-radius: 50px;
+            border: 1px solid white;
+
+            margin-top: 10px;
+        }
+
+        .title > button:hover {
+            border: 2px solid white;
+        }
+
+        .comment {
+            color: gray;
+        }
+
+        .cards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+        }
+
+        .navbar-text {
+            width: 350px;
+            height: 50px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .mypost {
+            width: 95%;
+            max-width: 800px;
+            margin: 20px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px gray;
+
+            display: none;
+        }
+
+        .mybtns {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 20px;
+        }
+
+        .mybtns > button {
+            margin-right: 10px;
+        }
+
+        /*상세 페이지*/
+        .detail {
+            height: 200px;
+            margin-bottom: 20px;
+            /*border: 2px solid black*/
+        }
+
+        .comment {
+            display: flex;
+            flex-direction: row;
+
+            margin-bottom: 20px;
+        }
+        .post-box {
+            width: 500px;
+            margin: 15px auto 5px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            padding: 20px;
+            display: none;
+
+        }
+        .postbox-btn {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px
+        }
+        .postbox-btn > button {
+            margin-right: 10px;
+        }
+    </style>
+    <script>
+        function open_box() {
+            $('#postbox').show()
+        }
+
+        function close_box() {
+            $('#postbox').hide()
+        }
+
+        /**
+         * Author : 이혜민
+         * function : 회원가입 기능**/
+
+        function is_nickname(asValue) {
+            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
+            return regExp.test(asValue);
+        }
+
+        function is_password(asValue) {
+            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
+            return regExp.test(asValue);
+        }
+
+        //아이디 형식 중복체크함수
+        function check_dup() {
+            let username = $("#input-username").val()
+            console.log(username)
+            if (username == "") {
+                $("#help-id").text("아이디를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+                $("#input-username").focus()
+                return;
+            }
+            if (!is_nickname(username)) {
+                $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")
+                $("#input-username").focus()
+                return;
+            }
+            $("#help-id").addClass("is-loading")
+            $.ajax({
+                type: "POST",
+                url: "/sign_up/check_dup",
+                data: {
+                    username_give: username
+                },
+                success: function (response) {
+                    if (response["exists"]) {
+                        $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")
+                        $("#input-username").focus()
+                    } else {
+                        $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")
+                    }
+                    $("#help-id").removeClass("is-loading")
+
+                }
+            });
+        }
+
+        function sign_up() {
+            let username = $("#input-username").val()
+            let password = $("#input-password").val()
+            let password2 = $("#input-password2").val()
+            console.log(username, password, password2)
+
+            if ($("#help-id").hasClass("is-danger")) {
+                alert("아이디를 다시 확인해주세요.")
+                return;
+            } else if (!$("#help-id").hasClass("is-success")) {
+                alert("아이디 중복확인을 해주세요.")
+                return;
+            }
+
+            if (password == "") {
+                $("#help-password").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+                // alert("비밀번호를 입력해주세요.")
+                $("#input-password").focus()
+                return;
+            } else if (!is_password(password)) {
+                $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").removeClass("is-safe").addClass("is-danger")
+                $("#input-password").focus()
+                return
+            } else {
+                $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
+            }
+            if (password2 == "") {
+                $("#help-password2").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+                $("#input-password2").focus()
+                return;
+            } else if (password2 != password) {
+                $("#help-password2").text("비밀번호가 일치하지 않습니다.").removeClass("is-safe").addClass("is-danger")
+                $("#input-password2").focus()
+                return;
+            } else {
+                $("#help-password2").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+            }
+            $.ajax({
+                type: "POST",
+                url: "/sign_up/save",
+                data: {
+                    username_give: username,
+                    password_give: password
+                },
+                success: function (response) {
+                    alert("회원가입을 축하드립니다! 다시 로그인 해 주세요")
+                    window.location.replace("/")
+                }
+            });
+        }
+
+        function init_sign_input() {
+            $("#help-id").toggleClass("is-hidden")
+            $("#help-password").toggleClass("is-hidden")
+            $("#help-password2").toggleClass("is-hidden")
+
+            $("#input-username").val('')
+            $("#input-password").val('')
+            $("#input-password2").val('')
+        }
+
+         /**
+         * Author : 손지아
+         * function : 포스팅하기**/
+         function posting() {
+            let url = $('#url').val()
+            let category = $('#selectCategory').val()
+            let star = $('#selectStar').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'POST',
+                url: '/post_place',
+                data: {url_give:url, category_give:category, star_give:star, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+                    window.location.reload()
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+
+<div class="title">
+    <div class="login">
+        <i class="fas fa-user"></i>
+        <!--        로그인 팝업-->
+        <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+             tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalToggleLabel">로그인 후 맛집 추천을 해보세요!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="login-box">
+                            <label for="floatingInput" style="color: gray;">ID</label>
+                            <p><input type="text" id="floatingInput"/></p>
+                            <label for="floatingPassword" style="color: gray;">Password</label>
+                            <p><input type="text" id="floatingPassword"/></p>
+                        </div>
+                        <div>
+                            <button>로그인</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="login-a"><a>아직 회원이 아니라면?</a></div>
+                        <button class="btn"onclick="init_sign_input()" data-bs-target="#sign-up-toggle" data-bs-toggle="modal"
+                                data-bs-dismiss="modal" >회원가입
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--        회원가입 팝업-->
+        <div class="modal fade" id="sign-up-toggle" aria-hidden="true"
+             aria-labelledby="exampleModalToggleLabel2"
+             tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" id="sign-up-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalToggleLabel2" style="color: gray">회원가입</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="section has-text-centered">
+                            <div class="container" style="width:60%">
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="input-username" style="color: gray">아이디</label>
+
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="text" class="input" id="input-username" placeholder="아이디">
+                                        <button class="button is-sparta" onclick="check_dup()">중복확인</button>
+
+                                                <p id="help-id" class="help is-hidden"
+                                                   style="color: gray; font-size: 10px">아이디는 2-10자의 영문과 숫자와 일부
+                                                    특수문자(._-)만 입력 가능합니다.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="input-password" style="color: gray">비밀번호</label>
+
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="password" class="input" id="input-password"
+                                                       aria-describedby="emailHelp"
+                                                       placeholder="Password">
+                                                <p id="help-password" class="help is-hidden"
+                                                   style="color: gray; font-size: 10px">영문과 숫자 조합의 8-20자의 비밀번호를 설정해주세요.
+                                                    특수문자(!@#$%^&*)도 사용 가능합니다.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="input-password2" style="color: gray">비밀번호 재입력</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="password" class="input" id="input-password2"
+                                                       placeholder="Password">
+                                                <p id="help-password2" class="help is-hidden"
+                                                   style="color: gray; font-size: 10px"> 비밀번호를 다시 한 번 입력해주세요.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="button is-primary" onclick="sign_up()">회원가입</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-bs-target="#exampleModalToggle" data-bs-toggle="modal"
+                                data-bs-dismiss="modal">다시 로그인하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--        로그인/회원가입버튼-->
+        <a class="btn" data-bs-toggle="modal" href="#exampleModalToggle" role="button">로그인/회원가입</a>
+    </div>
+
+    <h1>맛집 가이드 (가제) </h1>
+    <button onclick="open_box()">맛집 추천하기</button>
+</div>
+<!--맛집추천-->
+<div class="post-box" id="postbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="url" placeholder="맛집 URL">
+            <label for="url">맛집 URL</label>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="selectCategory">카테고리</label>
+            <select class="form-select" id="selectCategory">
+                <option selected>--카테고리 선택--</option>
+                <option value="1">족발.보쌈</option>
+                <option value="2">찜.탕.찌개</option>
+                <option value="3">돈까스.회.일식</option>
+                <option value="4">피자</option>
+                <option value="5">치킨</option>
+                <option value="6">야식</option>
+                <option value="7">양식</option>
+                <option value="8">아시안</option>
+                <option value="9">백반.죽.국수</option>
+                <option value="10">도시락</option>
+                <option value="11">분식</option>
+                <option value="12">카페.디저트</option>
+                <option value="13">패스트푸드</option>
+                <option value="14">고기</option>
+                <option value="15">중식</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="selectStar">별점</label>
+            <select class="form-select" id="selectStar">
+                <option selected>--별점 선택--</option>
+                <option value="1">⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="5">⭐⭐⭐⭐⭐</option>
+            </select>
+        </div>
+        <div class="form-floating">
+            <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+            <label for="floatingTextarea2">후기를 남겨주세요!</label>
+        </div>
+        <div class="postbox-btn">
+            <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
+            <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
+        </div>
+    </div>
+<!--카테고리 네이게이션바-->
+<div class="category">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">category</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">피자</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">치킨</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">야식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">양식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">아시안</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">도시락</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">분식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">고기</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">중식</a>
+                    </li>
+                </ul>
+                <div class="navbar-text">
+                    <input type="text" class="form-control" placeholder="검색하세요." aria-label="Recipient's username"
+                           aria-describedby="button-addon2">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">OK</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<!--리뷰, 별점 정렬-->
+<div class="sort">
+    <div class="input-group mb-3" style="width : 200px;">
+        <label class="input-group-text" for="inputGroupSelect01">정렬</label>
+        <select class="form-select" id="inputGroupSelect01">
+            <option selected>Sort</option>
+            <option value="1">리뷰👍</option>
+            <option value="2">별점👍</option>
+        </select>
+    </div>
+</div>
+
+<!--맛집리스트-->
+<div class="cards">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+        <div class="col">
+            <div class="card h-100">
+                <button type="button" class="btn" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
+                    <img class="card-img-top"
+                         src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832">
+                </button>
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="detail">
+                                        img - 크롤링
+                                    </div>
+
+                                    <div class="detail">
+                                        explanation - 크롤링
+                                    </div>
+
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                                        <select class="form-select" id="inputGroupSelect01">
+                                            <option selected>Choose...</option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                            <option value="4">Four</option>
+                                            <option value="5">Five</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-floating comment">
+                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                              style="height: 100px"></textarea>
+                                        <label for="floatingTextarea2">Comments</label>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+
+                                    </div>
+
+                                    <div class="detail">
+                                        댓글 목록 - db추출
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary">등록 취소</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
+                     class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">토방골</h5>
+                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
+                    <sapn>⭐</sapn>
+                    <span class="comment">reviews 12</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<-- card -->
+</body>
+</html>
