@@ -62,7 +62,7 @@ def login():
     if result is not None:
         payload = {
             'id': id_receive,
-            'exp': datetime.utcnow() + timedelta(seconds=10) # 30분 후 만료
+            'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
         }
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
@@ -80,17 +80,20 @@ def api_valid():
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
 
-        # payload 안에 id가 들어있습니다. 이 id로 유저정보를 찾습니다.
-        # userinfo = db.user.find_one({'id': payload['id']}, {'_id': 0})
-
-        # 맛집 추천 코드
-
         return
     except jwt.ExpiredSignatureError:
         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+
+
+@app.route('/sort_places', methods=['GET'])
+def sort_places():
+    sort_receive = request.args.get('sort_give')
+    sorted_list = list(db.places.find({},{'_id':False}).sort("sort_receive", -1))
+
+    return jsonify({'result': 'success'})
 
 
 if __name__ == '__main__':

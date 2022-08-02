@@ -22,10 +22,6 @@
         }
 
         /*로그인*/
-        .login {
-            color: black;
-        }
-
         .login_title_t {
             font-weight: bold;
             font-size: 22px;
@@ -334,6 +330,20 @@
             alert('로그아웃!')
             window.location.href='/'
           }
+
+        function send_value(val) {
+            let selected = val
+
+            $.ajax({
+                type: "GET",
+                url: "/sort_places?sort_give=" + selected,
+                data: {},
+                success: function (response) {
+                    console.log(response)
+                }
+            });
+
+        }
     </script>
 </head>
 <body>
@@ -457,7 +467,9 @@
     </div>
 
     <h1>맛집 가이드 (가제) </h1>
-    <button onclick="open_box()">맛집 추천하기</button>
+    {% if user_info is defined %}
+        <button onclick="open_box()">맛집 추천하기</button>
+    {% endif %}
 </div>
 
 <!--카테고리 네이게이션바-->
@@ -528,14 +540,14 @@
 </div>
 <!--리뷰, 별점 정렬-->
 <div class="sort">
-    <div class="input-group mb-3" style="width : 200px;">
+    <form class="input-group mb-3" style="width : 200px;">
         <label class="input-group-text" for="inputGroupSelect01">정렬</label>
-        <select class="form-select" id="inputGroupSelect01">
+        <select onchange="send_value(this.value)" class="form-select" id="select_sort">
             <option selected>Sort</option>
-            <option value="1">리뷰👍</option>
-            <option value="2">별점👍</option>
+            <option value="reviews">리뷰👍</option>
+            <option value="stars">별점👍</option>
         </select>
-    </div>
+    </form>
 </div>
 
 <!--맛집추천-->
@@ -611,6 +623,7 @@
                                         explanation - 크롤링
                                     </div>
 
+                                    {% if user_info is defined %}
                                     <div class="input-group mb-3">
                                         <label class="input-group-text" for="inputGroupSelect01">별점</label>
                                         <select class="form-select" id="inputGroupSelect01">
@@ -626,6 +639,82 @@
                                     <div class="form-floating comment">
                     <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
                               style="height: 100px"></textarea>
+                                        <label for="floatingTextarea2">Comments</label>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="detail">
+                                        댓글 목록 - db추출
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary">등록 취소</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% for place in sorted_list %}
+        <div class="col">
+            <div class="card h-100">
+                <button type="button" class="btn" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
+                    <img class="card-img-top"
+                         src="${image}">
+                </button>
+                <div class="card-body">
+                    <h5 class="card-title">${name}</h5>
+                    <p class="card-text">${spot}</p>
+                    <span>${star_image}</span>
+                    <span class="comment">reviews 12</span>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="detail">
+                                        img - 크롤링
+                                        <p><img src="${image}"></p>>
+                                    </div>
+
+                                    <div class="detail">
+                                        explanation - 크롤링
+                                        <p>${name}</p>
+                                        <p>${spot}</p>
+                                        <p>${desc}</p>
+                                        <p>${comment}</p>
+                                    </div>
+
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                                        <select class="form-select" id="inputGroupSelect01">
+                                            <option selected>Choose...</option>
+                                            <option value="1">One</option>
+                                            <option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                            <option value="4">Four</option>
+                                            <option value="5">Five</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-floating comment">
+                                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                                     style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Comments</label>
                                         <button type="submit" class="btn btn-primary">Submit</button>
 
@@ -646,105 +735,8 @@
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-
-    </div>
+    {% endfor %}
 </div>
-<-- card -->
+
 </body>
 </html>
