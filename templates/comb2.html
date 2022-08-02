@@ -338,6 +338,104 @@
                 }
             });
         }
+        $(document).ready(function() {
+            listing();
+        });
+        function listing() {
+            $.ajax({
+                type: 'GET',
+                url: '/post',
+                data: {},
+                success: function (response) {
+                    let rows = response['posts']
+                    for (let i = 0; i < rows.length; i++) {
+                        let category = rows[i]['category']
+                        let comment = rows[i]['comment']
+                        let star = rows[i]['star']
+                        let image = rows[i]['image']
+                        let spot = rows[i]['spot']
+                        let name = rows[i]['name']
+                        let desc = rows[i]['desc']
+
+                        let star_image = '⭐'.repeat(star)
+
+                        let temp_html = `<div class="col">
+                                        <div class="card h-100">
+                                            <button type="button" class="btn" data-bs-toggle="modal"
+                                                    data-bs-target="#exampleModal">
+                                                <img class="card-img-top"
+                                                     src="${image}">
+                                            </button>
+                                            <div class="card-body">
+                                                <h5 class="card-title">${name}</h5>
+                                                <p class="card-text">${spot}</p>
+                                                <span>${star_image}</span>
+                                                <span class="comment">reviews 12</span>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                                     aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="detail">
+                                                                    img - 크롤링
+                                                                    <p><img src="${image}"></p>>
+                                                                </div>
+
+                                                                <div class="detail">
+                                                                    explanation - 크롤링
+                                                                    <p>${name}</p>
+                                                                    <p>${spot}</p>
+                                                                    <p>${desc}</p>
+                                                                    <p>${comment}</p>
+                                                                </div>
+
+                                                                <div class="input-group mb-3">
+                                                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                                                                    <select class="form-select" id="inputGroupSelect01">
+                                                                        <option selected>Choose...</option>
+                                                                        <option value="1">One</option>
+                                                                        <option value="2">Two</option>
+                                                                        <option value="3">Three</option>
+                                                                        <option value="4">Four</option>
+                                                                        <option value="5">Five</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="form-floating comment">
+                                                                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                                                                 style="height: 100px"></textarea>
+                                                                    <label for="floatingTextarea2">Comments</label>
+                                                                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                                                                </div>
+
+                                                                <div class="detail">
+                                                                    댓글 목록 - db추출
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-primary">등록 취소</button>
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>`
+                        $('#cards-box').append(temp_html)
+                    }
+                }
+            })
+        }
     </script>
 </head>
 <body>
