@@ -46,34 +46,37 @@ def restaurant_post():
     star_receive = request.form['star_give']
     comment_receive = request.form['comment_give']
 
-    # headers = {
-    #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-    # data = requests.get(url_receive, headers=headers)
-    #
-    # soup = BeautifulSoup(data.text, 'html.parser')
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    data = requests.get(url_receive, headers=headers)
 
-    # name = soup.select_one('가게 이름 크롤링')
-    # image = soup.select_one('가게 이미지 크롤링')
-    # desc = soup.select_one('가게 소개 크롤링')
-    # spot = soup.select_one('가게 주소 크롤링')
+    soup = BeautifulSoup(data.text, 'html.parser')
+
+    name = soup.select_one('가게 이름 크롤링')
+    image = soup.select_one('가게 이미지 크롤링')
+    desc = soup.select_one('가게 소개 크롤링')
+    spot = soup.select_one('가게 주소 크롤링')
 
     doc = {
-        'category':category_receive,
-        'star':star_receive,
-        'comment':comment_receive,
-        # 'name':name,
-        # 'image':image,
-        # 'desc':desc,
-        # 'spot':spot
+        'category': category_receive,
+        'star': star_receive,
+        'comment': comment_receive,
+        'name':name,
+        'image':image,
+        'desc':desc,
+        'spot':spot
     }
     db.restaurants.insert_one(doc)
 
     return jsonify({'msg': '등록 완료'})
 
-@app.route("/post", methods=["GET"])
-def restaurant_get():
-    post_list = list(db.restaurants.find({},{'_id': False}))
-    return jsonify({'posts':post_list})
+#카테고리별 포스트 카드 붙여넣기
+@app.route("/<keyword>", methods=["GET"])
+def restaurant_get(keyword):
+    restaurant_list = list(db.restaurants.find({"category": str(keyword) }))
+    print(restaurant_list)
+
+    return render_template("comb.html", restaurant_list=restaurant_list)
 
 
 if __name__ == '__main__':
