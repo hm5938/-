@@ -179,14 +179,36 @@
 
             margin-bottom: 20px;
         }
+
+        /*추천 박스*/
+        .post-box {
+            width: 500px;
+            margin: 15px auto 5px auto;
+            box-shadow: 0px 0px 3px 0px gray;
+            padding: 20px;
+            display: none;
+
+        }
+
+        .postbox-btn {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px
+        }
+
+        .postbox-btn > button {
+            margin-right: 10px;
+        }
     </style>
     <script>
         function open_box() {
-            $('#post-box').show()
+            $('#postbox').show()
         }
 
         function close_box() {
-            $('#post-box').hide()
+            $('#postbox').hide()
         }
 
         /**
@@ -331,6 +353,8 @@
             window.location.href='/'
           }
 
+
+          // 정렬
         function send_value(val) {
             let selected = val
 
@@ -344,6 +368,79 @@
             });
 
         }
+
+        /**
+         * Author : 손지아
+         * function : 포스팅하기
+         */
+         function posting() {
+            let url = $('#url').val()
+            let category = $('#selectCategory').val()
+            let star = $('#selectStar').val()
+            let comment = $('#comment').val()
+
+            $.ajax({
+                type: 'POST',
+                url: '/post_place',
+                data: {url_give:url, category_give:category, star_give:star, comment_give:comment},
+                success: function (response) {
+                    alert(response['msg'])
+
+                    window.location.reload()
+
+                }
+            });
+        }
+
+        /**
+         * author: 안진우
+         * function: 리뷰 저장, 삭제
+         */
+        function save_review() {
+            let name = $('#name').val()
+            let comment = $('#floatingTextarea2').val()
+            let star = $('#star').val()
+            $.ajax({
+                type: "POST",
+                url: "/review",
+                data: {name_give: name, comment_give: comment, star_give: star},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+        function delete_review(del) {
+            $.ajax({
+                type: "POST",
+                url: '/review/delete',
+                data: {del_give: del},
+                success: function (response) {
+                    alert(response["msg"])
+                    {#console.log(num)#}
+                    window.location.reload()
+                }
+            })
+        }
+
+        /**Author : 이혜민
+         * Function : 식당 검색
+         * **/
+
+        function search() {
+            console.log('search')
+            let restaurant = $('#search').val()
+            temp_href = '/search/' + restaurant.toString()
+            window.location.href = temp_href;
+        }
+
+
+        $(function () {
+            $('.nav-link').click(function () {
+                alert(this.text)
+            });
+        });
     </script>
 </head>
 <body>
@@ -484,49 +581,50 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
+                        <!--  카테고리별 임시 이름으로 url 지정-->
+                        <a class="nav-link " aria-current="page" href="/1">족발.보쌈</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
+                        <a class="nav-link " aria-current="page" href="/2">찜.탕.찌개</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
+                        <a class="nav-link " aria-current="page" href="/3">돈까스.회.일식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">피자</a>
+                        <a class="nav-link " aria-current="page" href="/4">피자</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">치킨</a>
+                        <a class="nav-link " aria-current="page" href="/5">치킨</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">야식</a>
+                        <a class="nav-link " aria-current="page" href="/6">야식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">양식</a>
+                        <a class="nav-link " aria-current="page" href="/7">양식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">아시안</a>
+                        <a class="nav-link " aria-current="page" href="/8">아시안</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
+                        <a class="nav-link" aria-current="page" href="/9">백반.죽.국수</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">도시락</a>
+                        <a class="nav-link" aria-current="page" href="/10">도시락</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">분식</a>
+                        <a class="nav-link" aria-current="page" href="/11">분식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
+                        <a class="nav-link" aria-current="page" href="/12">카페.디저트</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
+                        <a class="nav-link" aria-current="page" href="/13">패스트푸드</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">고기</a>
+                        <a class="nav-link" aria-current="page" href="/14">고기</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">중식</a>
+                        <a class="nav-link" aria-current="page" href="/15">중식</a>
                     </li>
                 </ul>
                 <div class="navbar-text">
@@ -549,61 +647,70 @@
         </select>
     </form>
 </div>
-
 <!--맛집추천-->
-<div class="mypost" id="post-box">
-    <div class="form-floating mb-3">
-        <input id="url" type="email" class="form-control" placeholder="name@example.com">
-        <label>네이버 URL</label>
+<div class="post-box" id="postbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="url" placeholder="맛집 URL">
+            <label for="url">맛집 URL</label>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="selectCategory">카테고리</label>
+            <select class="form-select" id="selectCategory">
+                <option selected>--카테고리 선택--</option>
+                <option value="1">족발.보쌈</option>
+                <option value="2">찜.탕.찌개</option>
+                <option value="3">돈까스.회.일식</option>
+                <option value="4">피자</option>
+                <option value="5">치킨</option>
+                <option value="6">야식</option>
+                <option value="7">양식</option>
+                <option value="8">아시안</option>
+                <option value="9">백반.죽.국수</option>
+                <option value="10">도시락</option>
+                <option value="11">분식</option>
+                <option value="12">카페.디저트</option>
+                <option value="13">패스트푸드</option>
+                <option value="14">고기</option>
+                <option value="15">중식</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="selectStar">별점</label>
+            <select class="form-select" id="selectStar">
+                <option selected>--별점 선택--</option>
+                <option value="1">⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="5">⭐⭐⭐⭐⭐</option>
+            </select>
+        </div>
+        <div class="form-floating">
+            <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+            <label for="floatingTextarea2">후기를 남겨주세요!</label>
+        </div>
+        <div class="postbox-btn">
+            <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
+            <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
+        </div>
     </div>
-    <div class="input-group mb-3">
-        <label class="input-group-text" for="inputGroupSelect01">카테고리</label>
-        <select class="form-select">
-            <option selected>-- 선택하기 --</option>
-            <option value="1">족발.보쌈</option>
-            <option value="2">찜,탕,찌개</option>
-            <option value="3">돈까스,회,일식</option>
-            <option value="4">피자</option>
-            <option value="5">치킨</option>
-            <option value="6">야식</option>
-            <option value="7">양식</option>
-            <option value="8">아시안</option>
-            <option value="9">백반,죽,국수</option>
-            <option value="10">도시락</option>
-            <option value="11">분식</option>
-            <option value="12">카페,디저트</option>
-            <option value="13">패스트푸드</option>
-            <option value="14">고기</option>
-            <option value="15">중식</option>
-        </select>
-    </div>
-
-    <div class="form-floating">
-        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
-        <label for="floatingTextarea2">코멘트</label>
-    </div>
-    <div class="mybtns">
-        <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
-        <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
-    </div>
-</div>
 
 <!--맛집리스트-->
 <div class="cards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-        <div class="col">
+        {% for restaurant in restaurant_list %}
+            <div class="col">
             <div class="card h-100">
                 <button type="button" class="btn" data-bs-toggle="modal"
                         data-bs-target="#exampleModal">
                     <img class="card-img-top"
-                         src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832">
+                         src={{restaurant['img']}}>
                 </button>
                 <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-
+                    <h5 class="card-title">{{restaurant['title']}}</h5>
+                    <p class="card-text">{{restaurant['address']}}</p>
+                    <sapn>{{restaurant['star_total']}}</sapn>
+                    <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
                     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                          aria-hidden="true">
@@ -616,37 +723,54 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="detail">
-                                        img - 크롤링
+                                        {{restaurant['img']}}
                                     </div>
 
                                     <div class="detail">
-                                        explanation - 크롤링
+                                        {{restaurant['desc']}}
                                     </div>
-
-                                    {% if user_info is defined %}
                                     <div class="input-group mb-3">
-                                        <label class="input-group-text" for="inputGroupSelect01">별점</label>
-                                        <select class="form-select" id="inputGroupSelect01">
-                                            <option selected>Choose...</option>
-                                            <option value="1">One</option>
-                                            <option value="2">Two</option>
-                                            <option value="3">Three</option>
-                                            <option value="4">Four</option>
-                                            <option value="5">Five</option>
+                                        <span class="input-group-text" id="basic-addon1">닉네임</span>
+                                        <input id="name" type="text" class="form-control" placeholder="Username"
+                                               aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="star">별점</label>
+                                        <select class="form-select" id="star">
+                                            <option selected>별점</option>
+                                            <option value="1">⭐</option>
+                                            <option value="2">⭐⭐</option>
+                                            <option value="3">⭐⭐⭐</option>
+                                            <option value="4">⭐⭐⭐⭐</option>
+                                            <option value="5">⭐⭐⭐⭐⭐</option>
                                         </select>
                                     </div>
 
                                     <div class="form-floating comment">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                              style="height: 100px"></textarea>
+                                        <textarea class="form-control" placeholder="Leave a comment here"
+                                                  id="floatingTextarea2"
+                                                  style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Comments</label>
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <button type="submit" class="btn btn-primary" onclick="save_review()">Submit
+                                        </button>
 
                                     </div>
-                                    {% endif %}
 
-                                    <div class="detail">
-                                        댓글 목록 - db추출
+                                    <div class="detail" id="reviews">
+                                        {% for review in restaurant['review_list'] %}
+                                        <!--                                        댓글 목록 - db추출-->
+                                            {% set stars = "⭐" * (review.star|int) %}
+                                        <div id="review">
+                                            <p class="name"> {{ review.name }}
+                                                <span>
+                                                        <button class="del">
+                                                            <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                </span>
+                                            </p>
+                                            <p>{{ review.comment }} <span> {{ stars }}</span></p>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -660,8 +784,12 @@
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 
+
+
+<!--    정렬 기능-->
     {% for place in sorted_list %}
         <div class="col">
             <div class="card h-100">
