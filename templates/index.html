@@ -11,6 +11,7 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/def66b134a.js" crossorigin="anonymous"></script>
+
     <title></title>
 
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -19,21 +20,83 @@
         * {
             font-family: 'Gowun Dodum', sans-serif;
         }
+
+        /*로그인*/
         .login {
-            position : absolute;
-            top : 10px;
-            right : 20px;
-            font-size : 20px;
-            color : inherit;
+            color: black;
         }
+
+        .login_title_t {
+            font-weight: bold;
+            font-size: 22px;
+            display: inline-block;
+            padding-top: 5px;
+        }
+
+        .login_title_a {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .login_title_a > a {
+            font-weight: bold;
+        }
+
+        .login_btn {
+            margin-top: 10px;
+        }
+
+        .login_btn > button {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+
+        .signup {
+            width: 170px;
+            height: 25px;
+            background-color: transparent;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+
+        .signup:hover {
+            border: 2px solid;
+        }
+
+        .login_box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-a {
+            color: black;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .login {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 20px;
+            color: inherit;
+        }
+
         .login > a {
-            text-decoration-line : none;
-            color : white;
+            text-decoration-line: none;
+            color: white;
         }
+
         .login > a:hover {
-            font-size : 24px;
-            color : white;
+            font-size: 24px;
+            color: white;
         }
+
         .title {
             width: 100%;
             height: 400px;
@@ -77,9 +140,10 @@
             width: 95%;
             max-width: 1200px;
         }
+
         .navbar-text {
-            width : 350px;
-            height : 50px;
+            width: 350px;
+            height: 50px;
             display: flex;
             flex-direction: row;
         }
@@ -106,8 +170,50 @@
         .mybtns > button {
             margin-right: 10px;
         }
+
+        /*상세 페이지*/
+        .detail {
+            height: 200px;
+
+            margin-bottom: 20px;
+            /*border: 2px solid black*/
+        }
+
+        .comment {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 20px;
+        }
+
+        #review {
+            border-top: 1px solid gray;
+        }
+
+        #review > p {
+            padding: 5px 0px 0px 10px;
+
+        }
+
+        #review > p > span {
+            display: block;
+            text-align: end;
+        }
+
+        .del {
+            background-color: lightcoral;
+            margin-left: 10px;
+        }
+
+        .del:hover {
+            background-color: orange;
+        }
+
+        .name {
+            padding-left: 10px;
+        }
     </style>
     <script>
+
         function open_box() {
             $('#post-box').show()
         }
@@ -115,88 +221,213 @@
         function close_box() {
             $('#post-box').hide()
         }
+
+
+        function save_review() {
+            let name = $('#name').val()
+            let comment = $('#floatingTextarea2').val()
+            let star = $('#star').val()
+            $.ajax({
+                type: "POST",
+                url: "/review",
+                data: {name_give: name, comment_give: comment, star_give: star},
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+        function test() {
+            alert("이건클릭되냐?!")
+        }
+
+        function delete_review(del) {
+            $.ajax({
+                type: "POST",
+                url: '/review/delete',
+                data: {del_give: del},
+                success: function (response) {
+                    alert(response["msg"])
+                    {#console.log(num)#}
+                    window.location.reload()
+                }
+            })
+        }
     </script>
 </head>
 <body>
 <div class="title">
     <div class="login">
         <i class="fas fa-user"></i>
-        <a href="#" src="Login" > 로그인/회원가입 </a>
+        <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+             tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalToggleLabel">로그인 후 맛집 추천을 해보세요!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="login-box">
+                            <label for="floatingInput" style="color: gray;">ID</label>
+                            <p><input type="text" id="floatingInput"/></p>
+                            <label for="floatingPassword" style="color: gray;">Password</label>
+                            <p><input type="text" id="floatingPassword"/></p>
+                            <div class="login-a"><a>아직 회원이 아니라면?</a></div>
+                        </div>
+                        <div>
+                            <button>로그인</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"
+                                data-bs-dismiss="modal">회원가입
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="exampleModalToggle2" aria-hidden="true"
+             aria-labelledby="exampleModalToggleLabel2"
+             tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalToggleLabel2">Modal 2</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="section has-text-centered">
+                            <div class="container" style="width:60%">
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="usernick">아이디</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="text" class="input" id="usernick" placeholder="아이디">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="userid">비밀번호</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="text" class="input" id="userid"
+                                                       aria-describedby="emailHelp"
+                                                       placeholder="Password">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field is-horizontal">
+                                    <div class="field-label is-normal">
+                                        <label class="label" for="userpw">비밀번호 재입력</label>
+                                    </div>
+                                    <div class="field-body">
+                                        <div class="field">
+                                            <div class="control">
+                                                <input type="password" class="input" id="userpw"
+                                                       placeholder="Password">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="button is-primary" onclick="register()">회원가입</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-bs-target="#exampleModalToggle" data-bs-toggle="modal"
+                                data-bs-dismiss="modal">다시 로그인하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a class="btn" data-bs-toggle="modal" href="#exampleModalToggle" role="button">로그인/회원가입</a>
     </div>
     <h1>맛집 가이드 (가제) </h1>
     <button onclick="open_box()">맛집 추천하기</button>
 </div>
-<div class ="category">
+<div class="category">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">category</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarText">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
-        </li>
-           <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">피자</a>
-        </li>
-               <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">치킨</a>
-        </li>
-               <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">야식</a>
-        </li>
-               <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">양식</a>
-        </li>
-               <li class="nav-item">
-          <a class="nav-link " aria-current="page" href="#">아시안</a>
-        </li>
-                     <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
-        </li>
-                         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">도시락</a>
-        </li>
-                         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">분식</a>
-        </li>
-                         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
-        </li>
-                         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
-        </li>
-           <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#">고기</a>
-        </li>
-              <li class="nav-item">
-          <a class="nav-link"  aria-current="page" href="#">중식</a>
-        </li>
-      </ul>
-      <div class="navbar-text">
-        <input type="text" class="form-control" placeholder="검색하세요." aria-label="Recipient's username" aria-describedby="button-addon2" >
-        <button class="btn btn-outline-secondary" type="button" id="button-addon2">OK</button>
-      </div>
-    </div>
-  </div>
-</nav>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">category</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">피자</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">치킨</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">야식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">양식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " aria-current="page" href="#">아시안</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">도시락</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">분식</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">고기</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">중식</a>
+                    </li>
+                </ul>
+                <div class="navbar-text">
+                    <input type="text" class="form-control" placeholder="검색하세요." aria-label="Recipient's username"
+                           aria-describedby="button-addon2">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">OK</button>
+                </div>
+            </div>
+        </div>
+    </nav>
 </div>
 <div class="sort">
     <div class="input-group mb-3" style="width : 200px;">
-      <label class="input-group-text" for="inputGroupSelect01">정렬</label>
-      <select class="form-select" id="inputGroupSelect01">
-        <option selected>Sort</option>
-        <option value="1">리뷰👍</option>
-        <option value="2">별점👍</option>
-      </select>
+        <label class="input-group-text" for="inputGroupSelect01">정렬</label>
+        <select class="form-select" id="inputGroupSelect01">
+            <option selected>Sort</option>
+            <option value="1">리뷰👍</option>
+            <option value="2">별점👍</option>
+        </select>
     </div>
 </div>
 <div class="mypost" id="post-box">
@@ -239,17 +470,87 @@
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
         <div class="col">
             <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
+                <button type="button" class="btn" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
+                    <img class="card-img-top"
+                         src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832">
+                </button>
                 <div class="card-body">
                     <h5 class="card-title">토방골</h5>
                     <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
                     <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
+                    <span> {{ avg }}</span>
+                    <span class="comment">reviews {{ count }}</span>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="detail">
+                                        img - 크롤링
+                                    </div>
+
+                                    <div class="detail">
+                                        explanation - 크롤링
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text" id="basic-addon1">닉네임</span>
+                                        <input id="name" type="text" class="form-control" placeholder="Username"
+                                               aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                                        <select class="form-select" id="star">
+                                            <option selected>별점</option>
+                                            <option value="1">⭐</option>
+                                            <option value="2">⭐⭐</option>
+                                            <option value="3">⭐⭐⭐</option>
+                                            <option value="4">⭐⭐⭐⭐</option>
+                                            <option value="5">⭐⭐⭐⭐⭐</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-floating comment">
+                                        <textarea class="form-control" placeholder="Leave a comment here"
+                                                  id="floatingTextarea2"
+                                                  style="height: 100px"></textarea>
+                                        <label for="floatingTextarea2">Comments</label>
+                                        <button type="submit" class="btn btn-primary" onclick="save_review()">Submit
+                                        </button>
+
+                                    </div>
+
+                                    <div class="detail" id="reviews">
+                                        {% for row in reviews %}
+                                            {% set stars = "⭐" * (row.star|int) %}
+                                            <div id="review">
+                                                <p class="name"> {{ row.name }} <span> <button class="del"
+                                                                                              onclick="delete_review('{{ row.name }}')"><i class="fa fa-trash-o"></i></button></span></p>
+
+                                                <p>{{ row.comment }} <span> {{ stars }}</span></p>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary">등록 취소</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-          <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -261,7 +562,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -273,7 +574,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -285,7 +586,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -297,7 +598,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -309,7 +610,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -321,7 +622,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -333,7 +634,7 @@
                 </div>
             </div>
         </div>
-                <div class="col">
+        <div class="col">
             <div class="card h-100">
                 <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
                      class="card-img-top">
@@ -347,6 +648,7 @@
         </div>
 
     </div>
-</div> <-- card -->
+</div>
+<-- card -->
 </body>
 </html>
