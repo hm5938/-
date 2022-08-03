@@ -349,7 +349,6 @@
                     if (response['result'] == 'success') {
                         // 로그인이 정상적으로 되면, 토큰을 받아옵니다.
                         // 이 토큰을 mytoken이라는 키 값으로 쿠키에 저장합니다.
-                        print(response)
                         $.cookie('mytoken', response['token']);
 
                         alert('로그인 완료!')
@@ -443,12 +442,18 @@
         /**Author : 이혜민
          * Function : 식당 검색
          * **/
-
         function search() {
+
+            var regExp = /^[가-힣a-zA-Z\s]+$/;
             console.log('search')
             let restaurant = $('#search').val()
-            temp_href = '/search/' + restaurant.toString()
+            if(regExp.test(restaurant)){
+                         temp_href = '/search/' + restaurant.toString()
             window.location.href = temp_href;
+            }else{
+                alert("검색어를 입력해주세요. 영어, 한글만 가능합니다")
+            }
+
         }
 
 
@@ -715,9 +720,9 @@
 <div class="cards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
         {% for restaurant in restaurant_list %}
-        <div class="col" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
+        <div class="col" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
             <div class="card h-100">
-                <button type="button" class="btn" data-bs-toggle="modal">
+                <button type="button" class="btn">
                     <img class="card-img-top"
                          src={{restaurant['img']}}>
                 </button>
@@ -727,7 +732,7 @@
                     <span>{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1" aria-labelledby="exampleModalLabel"
                          aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content">
@@ -737,12 +742,12 @@
                                             aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="detail">
-                                        {{restaurant['img']}}
+                                     <div class="detail">
+                                        <img class="card-img-top"
+                                             src={{restaurant['img']}}>
+                                         <p> {{restaurant['desc']}}</p>
                                     </div>
-
                                     <div class="detail">
-                                        {{restaurant['desc']}}
                                     </div>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text" id="basic-addon1">닉네임</span>

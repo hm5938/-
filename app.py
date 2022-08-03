@@ -9,20 +9,25 @@ import re
 
 app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
-db = client.dbtest
+db = client.dbsparta
 
 SECRET_KEY = 'SPARTA'
 
 @app.route('/')
 def home():
     token_receive = request.cookies.get('mytoken')
+
+    #맛집 리스트 불러오기
+    place_list = list(db.places.find({}, {}))
+    result = make_restaurants_list(place_list)
+
     try:
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-        return render_template('comb.html', user_info=payload['id'])
+        return render_template('comb.html', user_info=payload['id'] , restaurant_list=result)
     except jwt.ExpiredSignatureError:
-        return render_template('comb.html', msg="로그인 시간이 만료되었습니다.")
+        return render_template('comb.html', msg="로그인 시간이 만료되었습니다.",restaurant_list=result)
     except jwt.exceptions.DecodeError:
-        return render_template('comb.html', msg="로그인 정보가 존재하지 않습니다.")
+        return render_template('comb.html', msg="로그인 정보가 존재하지 않습니다.", restaurant_list=result)
 
 
 # Author : 이혜민
@@ -100,38 +105,6 @@ def sort_places():
 
 # Author : 이혜민
 # Function : 서버사이드렌더링을 위한 데이터 전달
-@app.route('/')
-def SSR():
-    result = list()
-    place_list = list(db.places.find({}, {}))
-    for place in place_list:
-
-        id = place['_id']
-        reviews = find_review_with_place(id)
-        title=place['title']
-        address =place['address']
-        category =place['category']
-        desc=place['desc']
-        img =place['img']
-        review_list = reviews['reviews']
-        review_total = reviews['count']
-        star_total = reviews['avg']
-
-        result.append({
-            'id':id,
-            'title': title,
-            'address':address,
-            'category':category,
-            'desc':desc,
-            'img':img,
-            'review_list':review_list,
-            'review_total':review_total,
-            'star_total': star_total
-        })
-
-    print(result)
-    return render_template('comb.html', restaurant_list=result)
-
 def find_review_with_place(place_id):
     review_list = list(db.review.find({'place_id':place_id}, {'_id': False}))
     count = len(review_list)
