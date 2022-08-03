@@ -9,8 +9,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
 db = client.dbsparta
-# client = MongoClient('mongodb+srv://test:sparta@cluster0.cu3hs.mongodb.net/?retryWrites=true&w=majority')
-# db = client.mini
+
 
 SECRET_KEY = 'SPARTA'
 
