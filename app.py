@@ -7,6 +7,9 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import re
 
+from bs4 import BeautifulSoup
+import requests
+
 app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
 db = client.dbsparta
@@ -80,19 +83,19 @@ def login():
         return jsonify({'result': 'fail', 'msg': '회원 정보가 없습니다.'})
 
 # 토큰 필요한 작업에 주기
-@app.route('/post_place', methods=['POST'])
-def api_valid():
-    token_receive = request.cookies.get('mytoken')
-
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-
-        return
-    except jwt.ExpiredSignatureError:
-        # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
-        return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
-    except jwt.exceptions.DecodeError:
-        return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
+# @app.route('/post_place', methods=['POST'])
+# def api_valid():
+#
+#     try:
+#         token_receive = request.cookies.get('mytoken')
+#         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+#
+#         return
+#     except jwt.ExpiredSignatureError:
+#         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+#         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+#     except jwt.exceptions.DecodeError:
+#         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
 # 정렬(미완성)
 @app.route('/sort_places', methods=['GET'])
@@ -147,15 +150,27 @@ def make_restaurants_list(place_list):
 # function: 검색
 @app.route('/search/<search_name>')
 def search(search_name):
-    rgx = re.compile('.*' + search_name+ '.*', re.IGNORECASE)  # compile the regex
+    rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
     place_list = list(db.places.find({'title': rgx}, {}))
     print(len(place_list))
 
-    if len(place_list) != 0:
+    if not place_list:
+        # return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
+        return redirect('/')
+
+    try:
+        token_receive = request.cookies.get('mytoken')
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+
+        # 회원 인증된 경우
+        result = make_restaurants_list(place_list)
+        return render_template('comb.html', restaurant_list=result, user_info=payload['id'])
+    except:
+        # 비회원인 경우
         result = make_restaurants_list(place_list)
         return render_template('comb.html', restaurant_list=result)
-    else:
-        return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
+
+
 
 
 # Author : 손지아
@@ -176,10 +191,10 @@ def restaurant_post():
     # 정연님 코드
     place = soup.select("ul.restaurant_list > div > div > li > div > a")
 
-    title = place.select_one("strong.box_module_title").text
-    address = place.select_one("div.box_module_cont > div > div > div.mil_inner_spot > span.il_text").text
-    img = place.select_one("img.box_module_image")["src"]
-    desc = place.select_one("span.box_module_stitle").text.strip()
+    title = place.find("strong.box_module_title").text
+    address = place.find("div.box_module_cont > div > div > div.mil_inner_spot > span.il_text").text
+    img = place.find("img.box_module_image")["src"]
+    desc = place.find("span.box_module_stitle").text.strip()
     ##
 
     # title = soup.select_one('가게 이름 크롤링')
@@ -204,8 +219,11 @@ def restaurant_post():
 @app.route("/<keyword>", methods=["GET"])
 def restaurant_get(keyword):
     restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
-
-    return render_template("comb.html", restaurant_list=restaurant_list)
+    token_receive = request.cookies.get('mytoken')
+    if (token_receive == None):
+        return render_template('comb.html', restaurant_list=restaurant_list)
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    return render_template("comb.html", restaurant_list=restaurant_list, user_info=payload['id'])
 
 
 # author: 안진우
