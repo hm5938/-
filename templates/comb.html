@@ -202,6 +202,21 @@
         .postbox-btn > button {
             margin-right: 10px;
         }
+
+        #review {
+            border-top: 1px solid gray;
+        }
+
+        #review > p {
+            padding: 5px 0px 0px 10px;
+
+        }
+
+        #review > p > span {
+            display: block;
+            text-align: end;
+        }
+
     </style>
     <script>
         function open_box() {
@@ -419,10 +434,7 @@
                 data: {del_give: del},
                 success: function (response) {
                     alert(response["msg"])
-                    {
-                        #console.log(num)
-                        #
-                    }
+                    {#console.log(num)#}
                     window.location.reload()
                 }
             })
