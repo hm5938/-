@@ -202,14 +202,6 @@
         }
     </style>
     <script>
-        function open_box() {
-            $('#postbox').show()
-        }
-
-        function close_box() {
-            $('#postbox').hide()
-        }
-
         /**
          * Author : 이혜민
          * function : 회원가입 기능**/
@@ -334,108 +326,13 @@
                 data: {url_give:url, category_give:category, star_give:star, comment_give:comment},
                 success: function (response) {
                     alert(response['msg'])
+
                     window.location.reload()
+
                 }
             });
         }
-        $(document).ready(function() {
-            listing();
-        });
-        function listing() {
-            $.ajax({
-                type: 'GET',
-                url: '/post',
-                data: {},
-                success: function (response) {
-                    let rows = response['posts']
-                    for (let i = 0; i < rows.length; i++) {
-                        let category = rows[i]['category']
-                        let comment = rows[i]['comment']
-                        let star = rows[i]['star']
-                        let image = rows[i]['image']
-                        let spot = rows[i]['spot']
-                        let name = rows[i]['name']
-                        let desc = rows[i]['desc']
 
-                        let star_image = '⭐'.repeat(star)
-
-                        let temp_html = `<div class="col">
-                                        <div class="card h-100">
-                                            <button type="button" class="btn" data-bs-toggle="modal"
-                                                    data-bs-target="#exampleModal">
-                                                <img class="card-img-top"
-                                                     src="${image}">
-                                            </button>
-                                            <div class="card-body">
-                                                <h5 class="card-title">${name}</h5>
-                                                <p class="card-text">${spot}</p>
-                                                <span>${star_image}</span>
-                                                <span class="comment">reviews 12</span>
-
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                                                     aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                        aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="detail">
-                                                                    img - 크롤링
-                                                                    <p><img src="${image}"></p>>
-                                                                </div>
-
-                                                                <div class="detail">
-                                                                    explanation - 크롤링
-                                                                    <p>${name}</p>
-                                                                    <p>${spot}</p>
-                                                                    <p>${desc}</p>
-                                                                    <p>${comment}</p>
-                                                                </div>
-
-                                                                <div class="input-group mb-3">
-                                                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>
-                                                                    <select class="form-select" id="inputGroupSelect01">
-                                                                        <option selected>Choose...</option>
-                                                                        <option value="1">One</option>
-                                                                        <option value="2">Two</option>
-                                                                        <option value="3">Three</option>
-                                                                        <option value="4">Four</option>
-                                                                        <option value="5">Five</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="form-floating comment">
-                                                                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                                                                 style="height: 100px"></textarea>
-                                                                    <label for="floatingTextarea2">Comments</label>
-                                                                    <button type="submit" class="btn btn-primary">Submit</button>
-
-                                                                </div>
-
-                                                                <div class="detail">
-                                                                    댓글 목록 - db추출
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-primary">등록 취소</button>
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>`
-                        $('#cards-box').append(temp_html)
-                    }
-                }
-            })
-        }
     </script>
 </head>
 <body>
@@ -465,7 +362,7 @@
                     </div>
                     <div class="modal-footer">
                         <div class="login-a"><a>아직 회원이 아니라면?</a></div>
-                        <button class="btn"onclick="init_sign_input()" data-bs-target="#sign-up-toggle" data-bs-toggle="modal"
+                        <button class="btn" onclick="init_sign_input()" data-bs-target="#sign-up-toggle" data-bs-toggle="modal"
                                 data-bs-dismiss="modal" >회원가입
                         </button>
                     </div>
@@ -553,7 +450,7 @@
     </div>
 
     <h1>맛집 가이드 (가제) </h1>
-    <button onclick="open_box()">맛집 추천하기</button>
+    <button onclick="$('#postbox').show()">맛집 추천하기</button>
 </div>
 <!--맛집추천-->
 <div class="post-box" id="postbox">
@@ -599,7 +496,7 @@
         </div>
         <div class="postbox-btn">
             <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
-            <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
+            <button onclick="$('#postbox').hide()" type="button" class="btn btn-outline-dark">닫기</button>
         </div>
     </div>
 <!--카테고리 네이게이션바-->
@@ -614,49 +511,50 @@
             <div class="collapse navbar-collapse" id="navbarText">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">족발.보쌈</a>
+                        <!--  카테고리별 임시 이름으로 url 지정-->
+                        <a class="nav-link " aria-current="page" href="/1">족발.보쌈</a> 
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">찜.탕.찌개</a>
+                        <a class="nav-link " aria-current="page" href="/2">찜.탕.찌개</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">돈까스.회.일식</a>
+                        <a class="nav-link " aria-current="page" href="/3">돈까스.회.일식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">피자</a>
+                        <a class="nav-link " aria-current="page" href="/4">피자</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">치킨</a>
+                        <a class="nav-link " aria-current="page" href="/5">치킨</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">야식</a>
+                        <a class="nav-link " aria-current="page" href="/6">야식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">양식</a>
+                        <a class="nav-link " aria-current="page" href="/7">양식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="#">아시안</a>
+                        <a class="nav-link " aria-current="page" href="/8">아시안</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">백반.죽.국수</a>
+                        <a class="nav-link" aria-current="page" href="/9">백반.죽.국수</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">도시락</a>
+                        <a class="nav-link" aria-current="page" href="/10">도시락</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">분식</a>
+                        <a class="nav-link" aria-current="page" href="/11">분식</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">카페.디저트</a>
+                        <a class="nav-link" aria-current="page" href="/12">카페.디저트</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">패스트푸드</a>
+                        <a class="nav-link" aria-current="page" href="/13">패스트푸드</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">고기</a>
+                        <a class="nav-link" aria-current="page" href="/14">고기</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="#">중식</a>
+                        <a class="nav-link" aria-current="page" href="/15">중식</a>
                     </li>
                 </ul>
                 <div class="navbar-text">
@@ -671,8 +569,8 @@
 <!--리뷰, 별점 정렬-->
 <div class="sort">
     <div class="input-group mb-3" style="width : 200px;">
-        <label class="input-group-text" for="inputGroupSelect01">정렬</label>
-        <select class="form-select" id="inputGroupSelect01">
+        <label class="input-group-text" for="selectSort">정렬</label>
+        <select class="form-select" id="selectSort">
             <option selected>Sort</option>
             <option value="1">리뷰👍</option>
             <option value="2">별점👍</option>
@@ -683,19 +581,19 @@
 <!--맛집리스트-->
 <div class="cards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+        {% for restaurant in restaurant_list %}
         <div class="col">
             <div class="card h-100">
                 <button type="button" class="btn" data-bs-toggle="modal"
                         data-bs-target="#exampleModal">
                     <img class="card-img-top"
-                         src="https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832">
+                         src={{restaurant['img']}}>
                 </button>
                 <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-
+                    <h5 class="card-title">{{restaurant['title']}}</h5>
+                    <p class="card-text">{{restaurant['address']}}</p>
+                    <sapn>{{restaurant['star_total']}}</sapn>
+                    <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
                     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                          aria-hidden="true">
@@ -708,35 +606,54 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="detail">
-                                        img - 크롤링
+                                        {{restaurant['img']}}
                                     </div>
 
                                     <div class="detail">
-                                        explanation - 크롤링
+                                        {{restaurant['desc']}}
                                     </div>
-
                                     <div class="input-group mb-3">
-                                        <label class="input-group-text" for="inputGroupSelect01">별점</label>
-                                        <select class="form-select" id="inputGroupSelect01">
-                                            <option selected>Choose...</option>
-                                            <option value="1">One</option>
-                                            <option value="2">Two</option>
-                                            <option value="3">Three</option>
-                                            <option value="4">Four</option>
-                                            <option value="5">Five</option>
+                                        <span class="input-group-text" id="basic-addon1">닉네임</span>
+                                        <input id="name" type="text" class="form-control" placeholder="Username"
+                                               aria-label="Username" aria-describedby="basic-addon1">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="star">별점</label>
+                                        <select class="form-select" id="star">
+                                            <option selected>별점</option>
+                                            <option value="1">⭐</option>
+                                            <option value="2">⭐⭐</option>
+                                            <option value="3">⭐⭐⭐</option>
+                                            <option value="4">⭐⭐⭐⭐</option>
+                                            <option value="5">⭐⭐⭐⭐⭐</option>
                                         </select>
                                     </div>
 
                                     <div class="form-floating comment">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
-                              style="height: 100px"></textarea>
+                                        <textarea class="form-control" placeholder="Leave a comment here"
+                                                  id="floatingTextarea2"
+                                                  style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Comments</label>
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <button type="submit" class="btn btn-primary" onclick="save_review()">Submit
+                                        </button>
 
                                     </div>
 
-                                    <div class="detail">
-                                        댓글 목록 - db추출
+                                    <div class="detail" id="reviews">
+                                        {% for review in restaurant['review_list'] %}
+                                        <!--                                        댓글 목록 - db추출-->
+                                            {% set stars = "⭐" * (review.star|int) %}
+                                        <div id="review">
+                                            <p class="name"> {{ review.name }}
+                                                <span>
+                                                        <button class="del">
+                                                            <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                </span>
+                                            </p>
+                                            <p>{{ review.comment }} <span> {{ stars }}</span></p>
+                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -750,103 +667,7 @@
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100">
-                <img src=https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTBfMjY2%2FMDAxNjU3NDE1NzM5MDA1.QEY-wQMvEntxOLNxsGu6gwP-DT4mEh8XOQkYFnGCZ38g.K43AWi9kCsscBxK9995ZdVHyezDVM_cR5Ygqkuonetog.JPEG.hrin426%2FIMG_4967.jpg&type=sc960_832
-                     class="card-img-top">
-                <div class="card-body">
-                    <h5 class="card-title">토방골</h5>
-                    <p class="card-text">서울특별시 구로구 공원로6나길 49-3</p>
-                    <sapn>⭐</sapn>
-                    <span class="comment">reviews 12</span>
-                </div>
-            </div>
-        </div>
-
+        {% endfor %}
     </div>
 </div>
 <-- card -->
