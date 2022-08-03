@@ -58,13 +58,13 @@ def restaurant_post():
     spot = soup.select_one('가게 주소 크롤링')
 
     doc = {
-        'category': category_receive,
+       'category': category_receive,
         'star': star_receive,
         'comment': comment_receive,
-        'name':name,
-        'image':image,
+        'title':title,
+        'img':img,
         'desc':desc,
-        'spot':spot
+        'address':address
     }
     db.restaurants.insert_one(doc)
 
