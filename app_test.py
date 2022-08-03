@@ -5,6 +5,7 @@ import hashlib
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+import re
 
 app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
@@ -116,20 +117,17 @@ def check_dup():
 # function: 검색
 @app.route('/search/<search_name>')
 def search(search_name):
-    name_receive = search_name
-    print(name_receive)
-    # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
-    import re
 
-    rgx = re.compile('.*' + name_receive + '.*', re.IGNORECASE)  # compile the regex
+
+    rgx = re.compile('.*' + search_name+ '.*', re.IGNORECASE)  # compile the regex
     place_list = list(db.places.find({'title': rgx}, {}))
     print(len(place_list))
 
     if len(place_list) != 0:
         result = make_restaurants_list(place_list)
-        return render_template('comb2.html', restaurants=result)
+        return render_template('test.html', restaurants=result)
     else:
-        return render_template('comb2.html', mgs='검색결과가 존재하지 않습니다.')
+        return render_template('test.html', mgs='검색결과가 존재하지 않습니다.')
 
 
 
