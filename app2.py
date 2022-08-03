@@ -74,7 +74,6 @@ def restaurant_post():
 @app.route("/<keyword>", methods=["GET"])
 def restaurant_get(keyword):
     restaurant_list = list(db.restaurants.find({"category": str(keyword) }))
-    print(restaurant_list)
 
     return render_template("comb.html", restaurant_list=restaurant_list)
 
