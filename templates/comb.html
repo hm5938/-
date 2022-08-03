@@ -720,9 +720,9 @@
 <div class="cards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
         {% for restaurant in restaurant_list %}
-        <div class="col" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
+        <div class="col" >
             <div class="card h-100">
-                <button type="button" class="btn">
+                <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
                     <img class="card-img-top"
                          src={{restaurant['img']}}>
                 </button>
