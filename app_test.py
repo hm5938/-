@@ -45,9 +45,8 @@ def home():
             'review_total':review_total,
             'star_total': star_total
         })
-        print(result)
 
-
+    print(result)
     return render_template('test.html', restaurants=result)
 
 def find_review_with_place(place_id):
