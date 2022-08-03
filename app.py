@@ -118,11 +118,10 @@ def find_review_with_place(place_id):
 
 def make_restaurants_list(place_list):
     result = list()
-    for place in place_list :
+    for place in place_list:
 
-        print(place)
-        id = place['_id']
-        reviews = find_review_with_place(id)
+        place_id = place['_id']
+        reviews = find_review_with_place(place_id)
         title=place['title']
         address =place['address']
         category =place['category']
@@ -133,7 +132,7 @@ def make_restaurants_list(place_list):
         star_total = reviews['avg']
 
         result.append({
-            'id':id,
+            'id': place_id,
             'title': title,
             'address':address,
             'category':category,
@@ -189,18 +188,12 @@ def restaurant_post():
     soup = BeautifulSoup(data.text, 'html.parser')
 
     # 정연님 코드
-    place = soup.select("ul.restaurant_list > div > div > li > div > a")
-
-    title = place.find("strong.box_module_title").text
-    address = place.find("div.box_module_cont > div > div > div.mil_inner_spot > span.il_text").text
-    img = place.find("img.box_module_image")["src"]
-    desc = place.find("span.box_module_stitle").text.strip()
+    title = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > header > div.restaurant_title_wrap > span > h1').text
+    address = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(1) > td > span.Restaurant__InfoAddress--Text').text
+    # category = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(3) > td > span').text
+    desc = soup.select_one('meta[property="og:description"]')['content']
+    img = soup.select_one('meta[property="og:image"]')['content']
     ##
-
-    # title = soup.select_one('가게 이름 크롤링')
-    # img = soup.select_one('가게 이미지 크롤링')
-    # desc = soup.select_one('가게 소개 크롤링')
-    # address = soup.select_one('가게 주소 크롤링')
 
     doc = {
         'category': category_receive,
