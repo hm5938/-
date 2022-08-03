@@ -612,7 +612,7 @@
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
         {% for restaurant in restaurants %}
         <div class="col" data-bs-toggle="modal"
-                        data-bs-target="#{{restaurant.title}}">
+                        data-bs-target="#{{restaurant.title.replace(' ', '')}}">
             <div class="card h-100">
                 <button type="button" class="btn" >
                     <img class="card-img-top"
@@ -621,10 +621,10 @@
                 <div class="card-body">
                     <h5 class="card-title">{{restaurant['title']}}</h5>
                     <p class="card-text">{{restaurant['address']}}</p>
-                    <sapn>{{restaurant['star_total']}}</sapn>
+                    <span>{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
-                    <div class="modal fade" id={{restaurant.title}} tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id={{ restaurant.title.replace(' ', '') }} tabindex="-1" aria-labelledby="exampleModalLabel"
                          aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content">
