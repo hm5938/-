@@ -5,6 +5,7 @@ import hashlib
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+import re
 
 app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
@@ -73,6 +74,7 @@ def login():
     else:
         return jsonify({'result': 'fail', 'msg': '회원 정보가 없습니다.'})
 
+# 토큰 필요한 작업에 주기
 @app.route('/post_place', methods=['POST'])
 def api_valid():
     token_receive = request.cookies.get('mytoken')
@@ -87,7 +89,7 @@ def api_valid():
     except jwt.exceptions.DecodeError:
         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-
+# 정렬(미완성)
 @app.route('/sort_places', methods=['GET'])
 def sort_places():
     sort_receive = request.args.get('sort_give')
@@ -95,18 +97,146 @@ def sort_places():
 
     return jsonify({'result': 'success'})
 
-# author: 안진우
-# function: 리뷰 조회, 등록, 삭제
+
+# Author : 이혜민
+# Function : 서버사이드렌더링을 위한 데이터 전달
 @app.route('/')
-def home():
-    review_list = list(db.review.find({}, {'_id': False}))
+def SSR():
+    result = list()
+    place_list = list(db.places.find({}, {}))
+    for place in place_list:
+
+        id = place['_id']
+        reviews = find_review_with_place(id)
+        title=place['title']
+        address =place['address']
+        category =place['category']
+        desc=place['desc']
+        img =place['img']
+        review_list = reviews['reviews']
+        review_total = reviews['count']
+        star_total = reviews['avg']
+
+        result.append({
+            'id':id,
+            'title': title,
+            'address':address,
+            'category':category,
+            'desc':desc,
+            'img':img,
+            'review_list':review_list,
+            'review_total':review_total,
+            'star_total': star_total
+        })
+
+    print(result)
+    return render_template('comb.html', restaurant_list=result)
+
+def find_review_with_place(place_id):
+    review_list = list(db.review.find({'place_id':place_id}, {'_id': False}))
     count = len(review_list)
     avg = 0
-
     for review in review_list :
         avg = round(avg + int(review['star']) / count, 2)
+    return {'reviews':review_list,'count':count,'avg':avg}
 
-    return render_template('index.html', reviews=review_list, count=count, avg=avg)
+def make_restaurants_list(place_list):
+    result = list()
+    for place in place_list :
+
+        print(place)
+        id = place['_id']
+        reviews = find_review_with_place(id)
+        title=place['title']
+        address =place['address']
+        category =place['category']
+        desc=place['desc']
+        img =place['img']
+        review_list = reviews['reviews']
+        review_total = reviews['count']
+        star_total = reviews['avg']
+
+        result.append({
+            'id':id,
+            'title': title,
+            'address':address,
+            'category':category,
+            'desc':desc,
+            'img':img,
+            'review_list':review_list,
+            'review_total':review_total,
+            'star_total': star_total
+        })
+
+    return result
+
+# author: 이혜민
+# function: 검색
+@app.route('/search/<search_name>')
+def search(search_name):
+    rgx = re.compile('.*' + search_name+ '.*', re.IGNORECASE)  # compile the regex
+    place_list = list(db.places.find({'title': rgx}, {}))
+    print(len(place_list))
+
+    if len(place_list) != 0:
+        result = make_restaurants_list(place_list)
+        return render_template('comb.html', restaurant_list=result)
+    else:
+        return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
+
+
+# Author : 손지아
+# Function : 포스팅
+@app.route("/post_place", methods=["POST"])
+def restaurant_post():
+    url_receive = request.form['url_give']
+    category_receive = request.form['category_give']
+    star_receive = request.form['star_give']
+    comment_receive = request.form['comment_give']
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    data = requests.get(url_receive, headers=headers)
+
+    soup = BeautifulSoup(data.text, 'html.parser')
+
+    # 정연님 코드
+    place = soup.select("ul.restaurant_list > div > div > li > div > a")
+
+    title = place.select_one("strong.box_module_title").text
+    address = place.select_one("div.box_module_cont > div > div > div.mil_inner_spot > span.il_text").text
+    img = place.select_one("img.box_module_image")["src"]
+    desc = place.select_one("span.box_module_stitle").text.strip()
+    ##
+
+    # title = soup.select_one('가게 이름 크롤링')
+    # img = soup.select_one('가게 이미지 크롤링')
+    # desc = soup.select_one('가게 소개 크롤링')
+    # address = soup.select_one('가게 주소 크롤링')
+
+    doc = {
+        'category': category_receive,
+        'star': star_receive,
+        'comment': comment_receive,
+        'title':title,
+        'img':img,
+        'desc':desc,
+        'address':address
+    }
+    db.restaurants.insert_one(doc)
+
+    return jsonify({'msg': '등록 완료'})
+
+#카테고리별 포스트 카드 붙여넣기
+@app.route("/<keyword>", methods=["GET"])
+def restaurant_get(keyword):
+    restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
+
+    return render_template("comb.html", restaurant_list=restaurant_list)
+
+
+# author: 안진우
+# function: 리뷰 조회, 등록, 삭제
 
 @app.route("/review", methods=["POST"])
 def review_post():
