@@ -1,40 +1,29 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
-import time
-from selenium.common.exceptions import NoSuchElementException
 from pymongo import MongoClient
-import requests
-
 client = MongoClient('mongodb+srv://test:sparta@cluster0.ylnbujd.mongodb.net/Cluster0?retryWrites=true&w=majority')
 db = client.dbsparta
 
-driver = webdriver.Chrome('./chromedriver')
+import requests
+from bs4 import BeautifulSoup
 
-url = "http://matstar.sbs.co.kr/location.html"
+url = 'https://www.mangoplate.com/restaurants/3WFLmKTiqRLu'
 
-driver.get(url)
-time.sleep(5)
+headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+data = requests.get(url,headers=headers)
 
-req = driver.page_source
-driver.quit()
+soup = BeautifulSoup(data.text, 'html.parser')
 
-soup = BeautifulSoup(req, 'html.parser')
+title = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > header > div.restaurant_title_wrap > span > h1').text
+address = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(1) > td > span.Restaurant__InfoAddress--Text').text
+category = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(3) > td > span').text
+desc = soup.select_one('meta[property="og:description"]')['content']
+img = soup.select_one('meta[property="og:image"]')['content']
 
-places = soup.select("ul.restaurant_list > div > div > li > div > a")
-print(len(places))
+doc = {
+    "title": title,
+    "address": address,
+    "category": category,
+    "desc": desc,
+    "img": img
+}
 
-for place in places:
-    title = place.select_one("strong.box_module_title").text
-    address = place.select_one("div.box_module_cont > div > div > div.mil_inner_spot > span.il_text").text
-    category = place.select_one("div.box_module_cont > div > div > div.mil_inner_kind > span.il_text").text
-    comment = place.select_one("span.box_module_stitle").text.strip()
-    img = place.select_one("img.box_module_image")["src"]
-    doc = {
-        "title": title,
-        "address": address,
-        "category": category,
-        "comment": comment,
-        "img": img
-    }
-    db.places.insert_one(doc)
-
+db.places.insert_one(doc)
