@@ -1,930 +1,267 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+from pymongo import MongoClient
+import jwt
+import datetime
+import hashlib
+from flask import Flask, render_template, jsonify, request, redirect, url_for
+from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
+import re
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-            crossorigin="anonymous"></script>
-    <script src="https://kit.fontawesome.com/def66b134a.js" crossorigin="anonymous"></script>
-    <title></title>
+from bs4 import BeautifulSoup
+import requests
 
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+app = Flask(__name__)
+client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
+db = client.dbsparta
 
-    <style>
-        * {
-            font-family: 'Gowun Dodum', sans-serif;
+SECRET_KEY = 'SPARTA'
+
+@app.route('/')
+def home():
+    token_receive = request.cookies.get('mytoken')
+
+    #맛집 리스트 불러오기
+    place_list = list(db.restaurants.find({}, {}))
+    result = make_restaurants_list(place_list)
+
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        return render_template('comb.html', user_info=payload['id'] , restaurant_list=result)
+    except jwt.ExpiredSignatureError:
+        return render_template('comb.html', msg="로그인 시간이 만료되었습니다.",restaurant_list=result)
+    except jwt.exceptions.DecodeError:
+        return render_template('comb.html', msg="로그인 정보가 존재하지 않습니다.", restaurant_list=result)
+
+
+# Author : 이혜민
+# Function : 회원가입
+@app.route('/sign_up/save', methods=['POST'])
+def sign_up():
+    username_receive = request.form['username_give']
+    password_receive = request.form['password_give']
+    password_hash = hashlib.sha256(password_receive.encode('utf-8')).hexdigest()
+    doc = {
+        "id": username_receive,
+        "pw": password_hash,
+    }
+    db.user.insert_one(doc)
+    return jsonify({'result': 'success'})
+
+@app.route('/sign_up/check_dup', methods=['POST'])
+def check_dup():
+    username_receive = request.form['username_give']
+    exists = bool(db.user.find_one({"id": username_receive}))
+    # print(value_receive, type_receive, exists)
+    return jsonify({'result': 'success', 'exists': exists})
+
+# author: 김학준
+# function: 로그인
+@app.route('/login', methods=['POST'])
+def login():
+    id_receive = request.form['id_give']
+    pw_receive = request.form['pw_give']
+
+    # 회원가입 때와 같은 방법으로 pw를 암호화합니다.
+    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
+
+    # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
+    result = db.user.find_one({'id': id_receive, 'pw': pw_hash})
+
+    # 찾으면 JWT 토큰을 만들어 발급합니다.
+    if result is not None:
+        payload = {
+            'id': id_receive,
+            # 'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
+            'exp': datetime.utcnow() + timedelta(days=1) # 하루 후 만료
         }
 
-        /*로그인*/
-        .login_title_t {
-            font-weight: bold;
-            font-size: 22px;
-            display: inline-block;
-            padding-top: 5px;
-        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        .login_title_a {
-            margin-top: 30px;
-            margin-bottom: 10px;
-        }
+        # access_token 전송
+        return jsonify({'result': 'success', 'token': token})
+    # 찾지 못하면
+    else:
+        return jsonify({'result': 'fail', 'msg': '회원 정보가 없습니다.'})
 
-        .login_title_a > a {
-            font-weight: bold;
-        }
+# 토큰 필요한 작업에 주기
+# @app.route('/post_place', methods=['POST'])
+# def api_valid():
+#
+#     try:
+#         token_receive = request.cookies.get('mytoken')
+#         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+#
+#         return
+#     except jwt.ExpiredSignatureError:
+#         # 위를 실행했는데 만료시간이 지났으면 에러가 납니다.
+#         return jsonify({'result': 'fail', 'msg': '로그인 시간이 만료되었습니다.'})
+#     except jwt.exceptions.DecodeError:
+#         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-        .login_btn {
-            margin-top: 10px;
-        }
+# 정렬(미완성)
+@app.route('/sort_restaurants', methods=['GET'])
+def sort_places():
+    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    # data = requests.get(request.url, headers=headers)
+    # soup = BeautifulSoup(data.text, 'html.parser')
+    # print(soup.select('div.col'))
 
-        .login_btn > button {
-            width: 170px;
-            height: 25px;
-            background-color: transparent;
-            border-radius: 3px;
-            border: 1px solid;
-        }
+    sort_receive = request.args.get('sort_give')
 
-        .signup {
-            width: 170px;
-            height: 25px;
-            background-color: transparent;
-            border-radius: 3px;
-            border: 1px solid;
-        }
+    return jsonify({"result": sort_receive})
 
-        .signup:hover {
-            border: 2px solid;
-        }
 
-        .login_box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+# Author : 이혜민
+# Function : 서버사이드렌더링을 위한 데이터 전달
+def find_review_with_place(place_id):
+    review_list = list(db.review.find({'place_id':place_id}, {'_id': False}))
+    count = len(review_list)
+    avg = 0
+    for review in review_list :
+        if(review['star']!='별점'):
+            avg = round(avg + int(review['star']) / count, 2)
+    return {'reviews':review_list,'count':count,'avg':avg}
 
-        .login-a {
-            color: black;
-            font-weight: bold;
-        }
+def make_restaurants_list(place_list):
+    result = list()
+    for place in place_list:
 
-        .login {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 20px;
-            color: inherit;
-        }
+        # print(place)
+        id = str(place['_id'])
+        reviews = find_review_with_place(id)
+        title=place['title']
+        address =place['address']
+        category =place['category']
+        comment = place['comment']
+        star = place['star']
+        desc=place['desc']
+        img =place['img']
+        review_list = reviews['reviews']
+        review_total = reviews['count']
+        star_total = reviews['avg']
 
-        .login > a {
-            text-decoration-line: none;
-            color: white;
-        }
+        result.append({
+            'id':id,
+            'title': title,
+            'address':address,
+            'category':category,
+            'comment':comment,
+            'star':star,
+            'desc':desc,
+            'img':img,
+            'review_list':review_list,
+            'review_total':review_total,
+            'star_total': star_total
+        })
+    print(result)
+    return result
 
-        .login > a:hover {
-            font-size: 24px;
-            color: white;
-        }
+# author: 이혜민
+# function: 검색
+@app.route('/search/<search_name>')
+def search(search_name):
+    rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
+    restaurant_list = list(db.restaurants.find({'title': rgx}, {}))
+    result = make_restaurants_list(restaurant_list)
 
-        .title {
-            width: 100%;
-            height: 400px;
 
-            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMjA3MTdfMTAx%2FMDAxNjU4MDYwMTA3NDcw.qGAsWERrjfXUe-E2QfBBeUBecs0v4-pObX9Sh_09HTkg.rwbgCntnb6UIOSJOb6oG9h03SRZQdOf0mD-d6qybB9wg.PNG.soomskin%2F20220114_231213.png&type=sc960_832');
-            background-position: center;
-            background-size: cover;
+    try:
+        token_receive = request.cookies.get('mytoken')
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
 
-            color: white;
+        # 회원 인증된 경우
+        return render_template('comb.html', restaurant_list=result, user_info=payload['id'])
+    except:
+        # 비회원인 경우
+        return render_template('comb.html', restaurant_list=result)
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
 
-        }
 
-        .title > button {
-            width: 200px;
-            height: 50px;
 
-            background-color: transparent;
-            color: white;
+# Author : 손지아
+# Function : 포스팅
+@app.route("/post_place", methods=["POST"])
+def restaurant_post():
+    url_receive = request.form['url_give']
+    category_receive = request.form['category_give']
+    star_receive = request.form['star_give']
+    comment_receive = request.form['comment_give']
 
-            border-radius: 50px;
-            border: 1px solid white;
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    data = requests.get(url_receive, headers=headers)
 
-            margin-top: 10px;
-        }
+    soup = BeautifulSoup(data.text, 'html.parser')
 
-        .title > button:hover {
-            border: 2px solid white;
-        }
+    # 정연님 코드
+    title = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > header > div.restaurant_title_wrap > span > h1').text
+    address = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(1) > td > span.Restaurant__InfoAddress--Text').text
+    # category = soup.select_one('body > main > article > div.column-wrapper > div.column-contents > div > section.restaurant-detail > table > tbody > tr:nth-child(3) > td > span').text
+    desc = soup.select_one('meta[property="og:description"]')['content']
+    img = soup.select_one('meta[property="og:image"]')['content']
+    ##
 
-        .comment {
-            color: gray;
-        }
-
-        .cards {
-            margin: 20px auto 0px auto;
-            width: 95%;
-            max-width: 1200px;
-        }
-
-        .navbar-text {
-            width: 350px;
-            height: 50px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        #front-img {
-            max-height: 208px;
-            object-fit: cover;
-        }
-
-        .mypost {
-            width: 95%;
-            max-width: 800px;
-            margin: 20px auto 0px auto;
-            padding: 20px;
-            box-shadow: 0px 0px 3px 0px gray;
-
-            display: none;
-        }
-
-        .mybtns {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-
-            margin-top: 20px;
-        }
-
-        .mybtns > button {
-            margin-right: 10px;
-        }
-
-        /*상세 페이지*/
-        .detail {
-            /*height: 200px;*/
-            margin-bottom: 20px;
-            /*border: 2px solid black*/
-        }
-
-        .comment {
-            display: flex;
-            flex-direction: row;
-
-            margin-bottom: 20px;
-        }
-
-        /*추천 박스*/
-        .post-box {
-            width: 500px;
-            margin: 15px auto 5px auto;
-            box-shadow: 0px 0px 3px 0px gray;
-            padding: 20px;
-            display: none;
-
-        }
-
-        .postbox-btn {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px
-        }
-
-        .postbox-btn > button {
-            margin-right: 10px;
-        }
-
-        #review {
-            border-top: 1px solid gray;
-        }
-
-        #review > p {
-            padding: 5px 0px 0px 10px;
-
-        }
-
-        #review > p > span {
-            display: block;
-            text-align: end;
-        }
-
-        .banner {
-            text-align: center;
-
-            cursor: pointer;
-            width: 400px;
-            height: 80px;
-        }
-    </style>
-    <script>function go_home() {
-        window.location.href = '/'
+    doc = {
+        'category': category_receive,
+        'star': star_receive,
+        'comment': comment_receive,
+        'title':title,
+        'img':img,
+        'desc':desc,
+        'address':address
     }
 
-    function open_box() {
-            $('#postbox').show()
-        }
+    db.restaurants.insert_one(doc)
 
-        function close_box() {
-            $('#postbox').hide()
-        }
+    return jsonify({'msg': '등록 완료'})
 
-        /**
-         * Author : 이혜민
-         * function : 회원가입 기능**/
-
-        function is_nickname(asValue) {
-            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
-            return regExp.test(asValue);
-        }
-
-        function is_password(asValue) {
-            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
-            return regExp.test(asValue);
-        }
-
-        //아이디 형식 중복체크함수
-        function check_dup() {
-            let username = $("#input-username").val()
-            console.log(username)
-            if (username == "") {
-                $("#help-id").text("아이디를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                $("#input-username").focus()
-                return;
-            }
-            if (!is_nickname(username)) {
-                $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")
-                $("#input-username").focus()
-                return;
-            }
-            $("#help-id").addClass("is-loading")
-            $.ajax({
-                type: "POST",
-                url: "/sign_up/check_dup",
-                data: {
-                    username_give: username
-                },
-                success: function (response) {
-                    if (response["exists"]) {
-                        $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")
-                        $("#input-username").focus()
-                    } else {
-                        $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")
-                    }
-                    $("#help-id").removeClass("is-loading")
-
-                }
-            });
-        }
-
-        function sign_up() {
-            let username = $("#input-username").val()
-            let password = $("#input-password").val()
-            let password2 = $("#input-password2").val()
-            console.log(username, password, password2)
-
-            if ($("#help-id").hasClass("is-danger")) {
-                alert("아이디를 다시 확인해주세요.")
-                return;
-            } else if (!$("#help-id").hasClass("is-success")) {
-                alert("아이디 중복확인을 해주세요.")
-                return;
-            }
-
-            if (password == "") {
-                $("#help-password").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                // alert("비밀번호를 입력해주세요.")
-                $("#input-password").focus()
-                return;
-            } else if (!is_password(password)) {
-                $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").removeClass("is-safe").addClass("is-danger")
-                $("#input-password").focus()
-                return
-            } else {
-                $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
-            }
-            if (password2 == "") {
-                $("#help-password2").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                $("#input-password2").focus()
-                return;
-            } else if (password2 != password) {
-                $("#help-password2").text("비밀번호가 일치하지 않습니다.").removeClass("is-safe").addClass("is-danger")
-                $("#input-password2").focus()
-                return;
-            } else {
-                $("#help-password2").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
-            }
-            $.ajax({
-                type: "POST",
-                url: "/sign_up/save",
-                data: {
-                    username_give: username,
-                    password_give: password
-                },
-                success: function (response) {
-                    alert("회원가입을 축하드립니다! 다시 로그인 해 주세요")
-                    window.location.replace("/")
-                }
-            });
-        }
-
-        function init_sign_input() {
-            $("#help-id").toggleClass("is-hidden")
-            $("#help-password").toggleClass("is-hidden")
-            $("#help-password2").toggleClass("is-hidden")
-
-            $("#input-username").val('')
-            $("#input-password").val('')
-            $("#input-password2").val('')
-        }
-
-        /**
-         * author: 김학준
-         * function: 로그인
-         */
-        function login() {
-            $.ajax({
-                type: "POST",
-                url: "/login",
-                data: {id_give: $('#floatingInput').val(), pw_give: $('#floatingPassword').val()},
-                success: function (response) {
-                    if (response['result'] == 'success') {
-                        // 로그인이 정상적으로 되면, 토큰을 받아옵니다.
-                        // 이 토큰을 mytoken이라는 키 값으로 쿠키에 저장합니다.
-                        $.cookie('mytoken', response['token']);
-
-                        alert('로그인 완료!')
-                        window.location.href = '/'
-                    } else {
-                        // 로그인이 안되면 에러메시지를 띄웁니다.
-                        alert(response['msg'])
-                    }
-                }
-            })
-        }
-
-        // 로그아웃
-        function logout() {
-                $.removeCookie('mytoken', {path: '/'});
-                alert('로그아웃!')
-                window.location.href = "/"
-            }
+#카테고리별 포스트 카드 붙여넣기
+@app.route("/<keyword>", methods=["GET"])
+def restaurant_get(keyword):
+    restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
+    restaurant_list = make_restaurants_list(restaurant_list)
+    token_receive = request.cookies.get('mytoken')
+    if (token_receive == None):
+        return render_template('comb.html', restaurant_list=restaurant_list)
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    return render_template("comb.html", restaurant_list=restaurant_list, user_info=payload['id'])
 
 
-        // 정렬
-        function send_value(val) {
-            let selected = val
+# author: 안진우
+# function: 리뷰 조회, 등록, 삭제
 
-            $.ajax({
-                type: "GET",
-                url: "/sort_restaurants?sort_give=" + selected,
-                data: {},
-                success: function (response) {
-                    console.log(response)
-                }
-            });
+@app.route("/review", methods=["POST"])
+def review_post():
+    review_list = list(db.review.find({}, {'_id': False}))
+    count = len(review_list) + 1
 
-        }
+    name_receive = request.form['name_give']
+    comment_receive = request.form['comment_give']
+    star_recive = request.form['star_give']
+    place_receive = request.form['place_give']
 
-        /**
-         * Author : 손지아
-         * function : 포스팅하기
-         */
-        function posting() {
-            let url = $('#url').val()
-            let category = $('#selectCategory').val()
-            let star = $('#selectStar').val()
-            let comment = $('#comment').val()
+    doc = {
+        'name' : name_receive,
+        'star': star_recive,
+        'comment' : comment_receive,
+        'num' : count,
+        'place_id': place_receive
+    }
 
-            $.ajax({
-                type: 'POST',
-                url: '/post_place',
-                data: {url_give: url, category_give: category, star_give: star, comment_give: comment},
-                success: function (response) {
-                    alert(response['msg'])
+    db.review.insert_one(doc)
+    return jsonify({'msg':'리뷰 작성 완료!!'})
 
-                    window.location.reload()
+@app.route("/review", methods=["GET"])
+def review_get():
+    review_list = list(db.review.find({}, {'_id': False}))
+    return jsonify({'reviews':review_list})
 
-                }
-            });
-        }
+@app.route("/review/delete", methods=["POST"])
+def review_delete():
+    del_receive = request.form['del_give']
+    db.review.delete_one({'name':del_receive})
+    print(del_receive)
+    return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
 
-        /**
-         * author: 안진우
-         * function: 리뷰 저장, 삭제
-         */
-     function save_review(id) {
-
-            let name = $('#username'+id).val()
-            let comment = $('#usercomment'+id).val()
-            let star = $('#star'+id).val()
-
-
-            console.log(name, comment, star )
-            $.ajax({
-                type: "POST",
-                url: "/review",
-                data: {name_give: name, comment_give: comment, star_give: star, place_give:id},
-                success: function (response) {
-                    alert(response["msg"])
-                    window.location.reload()
-                }
-            });
-        }
-
-        function delete_review(del) {
-            $.ajax({
-                type: "POST",
-                url: '/review/delete',
-                data: {del_give: del},
-                success: function (response) {
-                    alert(response["msg"])
-                    {#console.log(num)#}
-                    window.location.reload()
-                }
-            })
-        }
-
-        /**Author : 이혜민
-         * Function : 식당 검색
-         * **/
-        function search() {
-
-            var regExp = /^[가-힣a-zA-Z\s]+$/;
-            console.log('search')
-            let restaurant = $('#search').val()
-            if(regExp.test(restaurant)){
-                         temp_href = '/search/' + restaurant.toString()
-            window.location.href = temp_href;
-            }else{
-                alert("검색어를 입력해주세요. 영어, 한글만 가능합니다")
-            }
-
-        }
-
-        // function test_search() {
-        //     var regExp = /^[가-힣a-zA-Z\s]+$/;
-        //     let restaurant = $('#search').val()
-        //     let temp_href = ''
-        //     if(regExp.test(restaurant)){
-        //         temp_href = restaurant.toString()
-        //     }
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '/search?search_give=' + temp_href,
-        //         data: {},
-        //         success: function (response) {
-        //             alert('hi')
-        //
-        //         }
-        //     });
-        // }
-
-
-        $(function () {
-            $('.nav-link').click(function () {
-                alert(this.text)
-            });
-        });
-    </script>
-</head>
-<body>
-
-<div class="title">
-    <div class="login">
-        <!--        로그인 팝업-->
-        <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
-             tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalToggleLabel">로그인 후 맛집 추천을 해보세요!</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="login-box">
-                            <label for="floatingInput" style="color: gray;">ID</label>
-                            <p><input type="text" id="floatingInput"/></p>
-                            <label for="floatingPassword" style="color: gray;">Password</label>
-                            <p><input type="password" id="floatingPassword"/></p>
-                        </div>
-                        <div>
-                            <button onclick="login()">로그인</button>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="login-a"><a>아직 회원이 아니라면?</a></div>
-                        <button class="btn" onclick="init_sign_input()" data-bs-target="#sign-up-toggle"
-                                data-bs-toggle="modal"
-                                data-bs-dismiss="modal">회원가입
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--        회원가입 팝업-->
-        <div class="modal fade" id="sign-up-toggle" aria-hidden="true"
-             aria-labelledby="exampleModalToggleLabel2"
-             tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered" id="sign-up-modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalToggleLabel2" style="color: gray">회원가입</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="section has-text-centered">
-                            <div class="container" style="width:60%">
-                                <div class="field is-horizontal">
-                                    <div class="field-label is-normal">
-                                        <label class="label" for="input-username" style="color: gray">아이디</label>
-
-                                    </div>
-                                    <div class="field-body">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input type="text" class="input" id="input-username" placeholder="아이디">
-                                                <button class="button is-sparta" onclick="check_dup()">중복확인</button>
-
-                                                <p id="help-id" class="help is-hidden"
-                                                   style="color: gray; font-size: 10px">아이디는 2-10자의 영문과 숫자와 일부
-                                                    특수문자(._-)만 입력 가능합니다.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field is-horizontal">
-                                    <div class="field-label is-normal">
-                                        <label class="label" for="input-password" style="color: gray">비밀번호</label>
-
-                                    </div>
-                                    <div class="field-body">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input type="password" class="input" id="input-password"
-                                                       aria-describedby="emailHelp"
-                                                       placeholder="Password">
-                                                <p id="help-password" class="help is-hidden"
-                                                   style="color: gray; font-size: 10px">영문과 숫자 조합의 8-20자의 비밀번호를 설정해주세요.
-                                                    특수문자(!@#$%^&*)도 사용 가능합니다.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field is-horizontal">
-                                    <div class="field-label is-normal">
-                                        <label class="label" for="input-password2" style="color: gray">비밀번호 재입력</label>
-                                    </div>
-                                    <div class="field-body">
-                                        <div class="field">
-                                            <div class="control">
-                                                <input type="password" class="input" id="input-password2"
-                                                       placeholder="Password">
-                                                <p id="help-password2" class="help is-hidden"
-                                                   style="color: gray; font-size: 10px"> 비밀번호를 다시 한 번 입력해주세요.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="button is-primary" onclick="sign_up()">회원가입</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn" data-bs-target="#exampleModalToggle" data-bs-toggle="modal"
-                                data-bs-dismiss="modal">다시 로그인하기
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--        로그인/회원가입버튼-->
-        {% if user_info is not defined %}
-        <i class="fas fa-user"></i>
-        <a class="btn" data-bs-toggle="modal" href="#exampleModalToggle" role="button">로그인/회원가입</a>
-        {% else %}
-        <span>{{user_info}} 님</span>
-        <button onclick="logout()">로그아웃</button>
-        {% endif %}
-    </div>
-
-    <div onclick="go_home()" class="banner">
-        <h1>맛집 가이드 (가제) </h1>
-    </div>
-    {% if user_info is defined %}
-    <button onclick="open_box()">맛집 추천하기</button>
-    {% endif %}
-</div>
-
-<!--카테고리 네이게이션바-->
-<div class="category">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">category</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
-                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarText">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <!--  카테고리별 임시 이름으로 url 지정-->
-                        <a class="nav-link " aria-current="page" href="/1">족발.보쌈</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/2">찜.탕.찌개</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/3">돈까스.회.일식</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/4">피자</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/5">치킨</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/6">야식</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/7">양식</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " aria-current="page" href="/8">아시안</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/9">백반.죽.국수</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/10">도시락</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/11">분식</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/12">카페.디저트</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/13">패스트푸드</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/14">고기</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/15">중식</a>
-                    </li>
-                </ul>
-                <div class="navbar-text">
-                    <input type="text" class="form-control" placeholder="검색하세요." aria-label="Recipient's username"
-                           aria-describedby="button-addon2" id="search">
-                    <button class="btn btn-outline-secondary" type="button" for="search" onclick="search()">OK</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-</div>
-<!--리뷰, 별점 정렬-->
-<div class="sort">
-    <form class="input-group mb-3" style="width : 200px;">
-        <label class="input-group-text" for="inputGroupSelect01">정렬</label>
-        <select onchange="send_value(this.value)" class="form-select" id="select_sort">
-            <option selected>Sort</option>
-            <option value="reviews">리뷰👍</option>
-            <option value="stars">별점👍</option>
-        </select>
-    </form>
-</div>
-<!--맛집추천-->
-<div class="post-box" id="postbox">
-    <div class="form-floating mb-3">
-        <input type="email" class="form-control" id="url" placeholder="맛집 URL">
-        <label for="url">Mango Plate URL</label>
-    </div>
-    <div class="input-group mb-3">
-        <label class="input-group-text" for="selectCategory">카테고리</label>
-        <select class="form-select" id="selectCategory">
-            <option selected>--카테고리 선택--</option>
-            <option value="1">족발.보쌈</option>
-            <option value="2">찜.탕.찌개</option>
-            <option value="3">돈까스.회.일식</option>
-            <option value="4">피자</option>
-            <option value="5">치킨</option>
-            <option value="6">야식</option>
-            <option value="7">양식</option>
-            <option value="8">아시안</option>
-            <option value="9">백반.죽.국수</option>
-            <option value="10">도시락</option>
-            <option value="11">분식</option>
-            <option value="12">카페.디저트</option>
-            <option value="13">패스트푸드</option>
-            <option value="14">고기</option>
-            <option value="15">중식</option>
-        </select>
-    </div>
-    <div class="input-group mb-3">
-        <label class="input-group-text" for="selectStar">별점</label>
-        <select class="form-select" id="selectStar">
-            <option selected>--별점 선택--</option>
-            <option value="1">⭐</option>
-            <option value="2">⭐⭐</option>
-            <option value="3">⭐⭐⭐</option>
-            <option value="4">⭐⭐⭐⭐</option>
-            <option value="5">⭐⭐⭐⭐⭐</option>
-        </select>
-    </div>
-    <div class="form-floating">
-        <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
-        <label for="floatingTextarea2">후기를 남겨주세요!</label>
-    </div>
-    <div class="postbox-btn">
-        <button onclick="posting()" type="button" class="btn btn-dark">기록하기</button>
-        <button onclick="close_box()" type="button" class="btn btn-outline-dark">닫기</button>
-    </div>
-</div>
-
-<!--맛집리스트-->
-<div class="cards">
-    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
-        {% for restaurant in restaurant_list %}
-        <div class="col">
-            <div class="card h-100">
-                <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
-                    <img class="card-img-top" id="front-img"
-                         src={{restaurant['img']}}>
-                </button>
-                <div class="card-body">
-                    <h5 class="card-title">{{restaurant['title']}}</h5>
-                    <p class="card-text">{{restaurant['address']}}</p>
-                    <span class="star">{{restaurant['star_total']}}</span>
-                    <span class="comment">reviews {{restaurant['review_total']}}</span>
-                    <!-- Modal -->
-                    <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1" aria-labelledby="exampleModalLabel"
-                         aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                     <div class="detail">
-                                        <img class="card-img-top"
-                                             src={{restaurant['img']}}>
-                                         <p> {{restaurant['desc']}}</p>
-                                         <p>후기: {{restaurant['comment']}}</p>
-                                    </div>
-                                    <div class="detail">
-                                    </div>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text" id="basic-addon1">닉네임</span>
-                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="Username"
-                                               aria-label="Username" aria-describedby="basic-addon1">
-                                    </div>
-                                    <div class="input-group mb-3">
-                                        <label class="input-group-text" for="star{{restaurant.id}}">별점</label>
-                                        <select class="form-select" id="star{{restaurant.id}}">
-                                            <option selected>별점</option>
-                                            <option value="1">⭐</option>
-                                            <option value="2">⭐⭐</option>
-                                            <option value="3">⭐⭐⭐</option>
-                                            <option value="4">⭐⭐⭐⭐</option>
-                                            <option value="5">⭐⭐⭐⭐⭐</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-floating comment">
-                                        <textarea class="form-control" placeholder="Leave a comment here"
-                                                  id="usercomment{{restaurant.id}}"
-                                                  style="height: 100px"></textarea>
-                                        <label for="floatingTextarea2">Comments</label>
-                                        <button type="submit" id='{{restaurant.id}}'class="btn btn-primary" onclick="save_review(this.id)">Submit
-                                        </button>
-
-                                    </div>
-
-                                    <div class="detail" id="reviews">
-                                        {% for review in restaurant['review_list'] %}
-                                        <!--                                        댓글 목록 - db추출-->
-                                        {% set stars = "⭐" * (review.star|int) %}
-                                        <div id="review">
-                                            <p class="name"> {{ review.name }}
-                                                <span>
-                                                        <button class="del" onclick="delete_review('{{ review.name }}')">
-                                                            <i class="fa fa-trash-o"></i>
-                                                        </button>
-                                                </span>
-                                            </p>
-                                            <p>{{ review.comment }} <span> {{ stars }}</span></p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary">등록 취소</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-
-    <!--    정렬 기능-->
-<!--    {% for place in sorted_list %}-->
-<!--    <div class="col">-->
-<!--        <div class="card h-100">-->
-<!--            <button type="button" class="btn" data-bs-toggle="modal"-->
-<!--                    data-bs-target="#exampleModal">-->
-<!--                <img class="card-img-top"-->
-<!--                     src="${image}">-->
-<!--            </button>-->
-<!--            <div class="card-body">-->
-<!--                <h5 class="card-title">${name}</h5>-->
-<!--                <p class="card-text">${spot}</p>-->
-<!--                <span>${star_image}</span>-->
-<!--                <span class="comment">reviews 12</span>-->
-
-<!--                &lt;!&ndash; Modal &ndash;&gt;-->
-<!--                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
-<!--                     aria-hidden="true">-->
-<!--                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">-->
-<!--                        <div class="modal-content">-->
-<!--                            <div class="modal-header">-->
-<!--                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>-->
-<!--                                <button type="button" class="btn-close" data-bs-dismiss="modal"-->
-<!--                                        aria-label="Close"></button>-->
-<!--                            </div>-->
-<!--                            <div class="modal-body">-->
-<!--                                <div class="detail">-->
-<!--                                    img - 크롤링-->
-<!--                                    <p><img src="${image}"></p>>-->
-<!--                                </div>-->
-
-<!--                                <div class="detail">-->
-<!--                                    explanation - 크롤링-->
-<!--                                    <p>${name}</p>-->
-<!--                                    <p>${spot}</p>-->
-<!--                                    <p>${desc}</p>-->
-<!--                                    <p>${comment}</p>-->
-<!--                                </div>-->
-
-<!--                                <div class="input-group mb-3">-->
-<!--                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>-->
-<!--                                    <select class="form-select" id="inputGroupSelect01">-->
-<!--                                        <option selected>Choose...</option>-->
-<!--                                        <option value="1">One</option>-->
-<!--                                        <option value="2">Two</option>-->
-<!--                                        <option value="3">Three</option>-->
-<!--                                        <option value="4">Four</option>-->
-<!--                                        <option value="5">Five</option>-->
-<!--                                    </select>-->
-<!--                                </div>-->
-
-<!--                                <div class="form-floating comment">-->
-<!--                                    <textarea class="form-control" placeholder="Leave a comment here"-->
-<!--                                              id="floatingTextarea2"-->
-<!--                                              style="height: 100px"></textarea>-->
-<!--                                    <label for="floatingTextarea2">Comments</label>-->
-<!--                                    <button type="submit" class="btn btn-primary">Submit</button>-->
-
-<!--                                </div>-->
-
-<!--                                <div class="detail">-->
-<!--                                    댓글 목록 - db추출-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                            <div class="modal-footer">-->
-<!--                                <button type="button" class="btn btn-primary">등록 취소</button>-->
-<!--                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    {% endfor %}-->
-</div>
-
-</body>
-</html>
+if __name__ == '__main__':
+    app.run('0.0.0.0', port=5000, debug=True)
