@@ -132,6 +132,8 @@ def make_restaurants_list(place_list):
         title=place['title']
         address =place['address']
         category =place['category']
+        comment = place['comment']
+        star = place['star']
         desc=place['desc']
         img =place['img']
         review_list = reviews['reviews']
@@ -143,6 +145,8 @@ def make_restaurants_list(place_list):
             'title': title,
             'address':address,
             'category':category,
+            'comment':comment,
+            'star':star,
             'desc':desc,
             'img':img,
             'review_list':review_list,
@@ -206,6 +210,7 @@ def restaurant_post():
         'desc':desc,
         'address':address
     }
+
     db.restaurants.insert_one(doc)
 
     return jsonify({'msg': '등록 완료'})
