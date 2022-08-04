@@ -21,7 +21,7 @@ def home():
     token_receive = request.cookies.get('mytoken')
 
     #맛집 리스트 불러오기
-    place_list = list(db.places.find({}, {}))
+    place_list = list(db.restaurants.find({}, {}))
     result = make_restaurants_list(place_list)
 
     try:
@@ -98,12 +98,16 @@ def login():
 #         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
 # 정렬(미완성)
-@app.route('/sort_places', methods=['GET'])
+@app.route('/sort_restaurants', methods=['GET'])
 def sort_places():
-    sort_receive = request.args.get('sort_give')
-    sorted_list = list(db.places.find({},{'_id':False}).sort("sort_receive", -1))
+    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+    # data = requests.get(request.url, headers=headers)
+    # soup = BeautifulSoup(data.text, 'html.parser')
+    # print(soup.select('div.col'))
 
-    return jsonify({'result': 'success'})
+    sort_receive = request.args.get('sort_give')
+
+    return jsonify({"result": sort_receive})
 
 
 # Author : 이혜민
@@ -152,13 +156,15 @@ def make_restaurants_list(place_list):
 @app.route('/search/<search_name>')
 def search(search_name):
     rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
-    place_list = list(db.places.find({'title': rgx}, {}))
+    place_list = list(db.restaurants.find({'title': rgx}, {}))
     print(len(place_list))
 
+    # 검색 결과 없을 때
     if not place_list:
         # return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
         return redirect('/')
 
+    # 검색 결과 있을 때
     try:
         token_receive = request.cookies.get('mytoken')
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
