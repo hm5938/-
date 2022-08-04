@@ -170,15 +170,15 @@ def search(search_name):
 # function: 정렬
 @app.route('/<keyword>/sort/<sort>')
 def sort_places(keyword, sort):
-    restaurant_list = list(db.restaurants.find({}, {}))
+    restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
     restaurant_list = make_restaurants_list(restaurant_list)
     token_receive = request.cookies.get('mytoken')
 
 
     sort_list = list()
-    if sort == '0':  # 리뷰순
+    if sort == '1':  # 리뷰순
         sort_list = sorted(restaurant_list, key=(lambda x: x['review_total']),reverse=True)
-    elif sort == '1':  # 별점순
+    elif sort == '2':  # 별점순
         sort_list = sorted(restaurant_list, key=(lambda x: x['star_total']),reverse=True)
 
     if (token_receive == None):
@@ -194,10 +194,10 @@ def sort_places2(sort):
     token_receive = request.cookies.get('mytoken')
 
     sort_list = list()
-    if sort == '0':#리뷰순
+    if sort == '1':#리뷰순
         sort_list = sorted(restaurant_list, key=(lambda x: x['review_total']), reverse=True)
         print(sort)
-    elif sort == '1':#별점순
+    elif sort == '2':#별점순
         sort_list = sorted(restaurant_list, key=(lambda x: x['star_total']),reverse=True)
         print(sort)
 

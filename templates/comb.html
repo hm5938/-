@@ -914,15 +914,15 @@
         }
         let pages = link.split('/')
 
-        if (pages[l - 1] == "") {
+        if (pages[l - 1] === "") {
             window.location.href = "/sort/" + sort
         } else if (!pages.includes('sort')) {
-            let eyword = link.split('/')[l - 1]
+            let keyword = link.split('/')[l - 1]
             window.location.href = "/" + keyword + "/sort/" + sort
         } else {
             let temp_href = ''
-            for (let i = 0; pages.length - 1; i++) {
-                temp_href += pages[i] + "/"
+            for (let i = 0; i< pages.length - 1; i++) {
+                temp_href += (pages[i] + '/')
             }
             window.location.href = temp_href +sort
         }
