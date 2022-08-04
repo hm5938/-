@@ -430,11 +430,11 @@
             });
         }
 
-        function delete_review(del,id) {
+        function delete_review(del,id,user) {
             $.ajax({
                 type: "POST",
                 url: '/review/delete',
-                data: {del_give: del, place_id : id},
+                data: {del_give: del, place_id : id, token_give : user},
                 success: function (response) {
                     alert(response["msg"])
                     {#console.log(num)#}
@@ -757,7 +757,7 @@
                                     <div class="input-group mb-3">
                                         <span class="input-group-text" id="basic-addon1">닉네임</span>
                                         <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="{{ user_info }}"
-                                               aria-label="Username" aria-describedby="basic-addon1">
+                                               aria-label="Username" aria-describedby="basic-addon1" readonly/>
                                     </div>
                                     <div class="input-group mb-3">
                                         <label class="input-group-text" for="star{{restaurant.id}}">별점</label>
@@ -788,7 +788,7 @@
                                         <div id="review">
                                             <p class="name"> {{ review.name }}
                                                 <span>
-                                                        <button class="del" onclick="delete_review('{{ review.name }}','{{ review.place_id }}')">
+                                                        <button class="del" onclick="delete_review('{{ review.name }}','{{ review.place_id }}','{{ user_info }}')">
                                                             <i class="fa fa-trash-o"></i>
                                                         </button>
                                                 </span>
