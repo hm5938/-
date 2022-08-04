@@ -71,7 +71,8 @@ def login():
     if result is not None:
         payload = {
             'id': id_receive,
-            'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
+            # 'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
+            'exp': datetime.utcnow() + timedelta(days=1) # 하루 후 만료
         }
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
@@ -156,25 +157,18 @@ def make_restaurants_list(place_list):
 @app.route('/search/<search_name>')
 def search(search_name):
     rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
-    place_list = list(db.restaurants.find({'title': rgx}, {}))
-    print(len(place_list))
+    restaurant_list = list(db.restaurants.find({'title': rgx}, {}))
+    result = make_restaurants_list(restaurant_list)
 
-    # 검색 결과 없을 때
-    if not place_list:
-        # return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
-        return redirect('/')
 
-    # 검색 결과 있을 때
     try:
         token_receive = request.cookies.get('mytoken')
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
 
         # 회원 인증된 경우
-        result = make_restaurants_list(place_list)
         return render_template('comb.html', restaurant_list=result, user_info=payload['id'])
     except:
         # 비회원인 경우
-        result = make_restaurants_list(place_list)
         return render_template('comb.html', restaurant_list=result)
 
 
@@ -220,6 +214,7 @@ def restaurant_post():
 @app.route("/<keyword>", methods=["GET"])
 def restaurant_get(keyword):
     restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
+    restaurant_list = make_restaurants_list(restaurant_list)
     token_receive = request.cookies.get('mytoken')
     if (token_receive == None):
         return render_template('comb.html', restaurant_list=restaurant_list)

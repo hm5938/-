@@ -373,10 +373,10 @@
 
         // 로그아웃
         function logout() {
-            $.removeCookie('mytoken');
-            alert('로그아웃!')
-            window.location.href = '/'
-        }
+                $.removeCookie('mytoken', {path: '/'});
+                alert('로그아웃!')
+                window.location.href = "/"
+            }
 
 
         // 정렬
@@ -411,7 +411,7 @@
                 success: function (response) {
                     alert(response['msg'])
 
-                    window.location.reload()
+                    // window.location.reload()
 
                 }
             });
@@ -469,6 +469,24 @@
             }
 
         }
+
+        // function test_search() {
+        //     var regExp = /^[가-힣a-zA-Z\s]+$/;
+        //     let restaurant = $('#search').val()
+        //     let temp_href = ''
+        //     if(regExp.test(restaurant)){
+        //         temp_href = restaurant.toString()
+        //     }
+        //     $.ajax({
+        //         type: 'GET',
+        //         url: '/search?search_give=' + temp_href,
+        //         data: {},
+        //         success: function (response) {
+        //             alert('hi')
+        //
+        //         }
+        //     });
+        // }
 
 
         $(function () {
