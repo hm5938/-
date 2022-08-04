@@ -11,8 +11,8 @@ app = Flask(__name__)
 client = MongoClient('mongodb+srv://test:sparta@Cluster0.dlhbsnt.mongodb.net/Cluster()?retryWrites=true&w=majority')
 db = client.dbsparta
 
-
 SECRET_KEY = 'SPARTA'
+
 
 # Author : 이혜민
 # Function : 서버사이드렌더링을 위한 데이터 전달
@@ -20,69 +20,69 @@ SECRET_KEY = 'SPARTA'
 def home():
     result = list()
     place_list = list(db.places.find({}, {}))
-    for place in place_list :
-
+    for place in place_list:
         print(place)
         id = place['_id']
         reviews = find_review_with_place(id)
-        title=place['title']
-        address =place['address']
-        category =place['category']
-        desc=place['desc']
-        img =place['img']
+        title = place['title']
+        address = place['address']
+        category = place['category']
+        desc = place['desc']
+        img = place['img']
         review_list = reviews['reviews']
         review_total = reviews['count']
         star_total = reviews['avg']
 
         result.append({
-            'id':id,
+            'id': id,
             'title': title,
-            'address':address,
-            'category':category,
-            'desc':desc,
-            'img':img,
-            'review_list':review_list,
-            'review_total':review_total,
+            'address': address,
+            'category': category,
+            'desc': desc,
+            'img': img,
+            'review_list': review_list,
+            'review_total': review_total,
             'star_total': star_total
         })
 
     print(result)
     return render_template('test.html', restaurants=result)
 
+
 def find_review_with_place(place_id):
     print(list(db.review.find({}, {'_id': False})))
-    review_list = list(db.reviews.find({'place_id':place_id}, {'_id': False}))
+    review_list = list(db.reviews.find({'place_id': place_id}, {'_id': False}))
     count = len(review_list)
     avg = 0
-    for review in review_list :
+    for review in review_list:
         avg = round(avg + int(review['star']) / count, 2)
-    return {'reviews':review_list,'count':count,'avg':avg}
+    return {'reviews': review_list, 'count': count, 'avg': avg}
+
 
 def make_restaurants_list(place_list):
     result = list()
-    for place in place_list :
-
+    for place in place_list:
         print(place)
         id = place['_id']
         reviews = find_review_with_place(id)
-        title=place['title']
-        address =place['address']
-        category =place['category']
-        desc=place['desc']
-        img =place['img']
+        title = place['title']
+        address = place['address']
+        category = place['category']
+        desc = place['desc']
+        img = place['img']
         review_list = reviews['reviews']
         review_total = reviews['count']
         star_total = reviews['avg']
 
         result.append({
-            'id':id,
+            'id': id,
             'title': title,
-            'address':address,
-            'category':category,
-            'desc':desc,
-            'img':img,
-            'review_list':review_list,
-            'review_total':review_total,
+            'address': address,
+            'category': category,
+            'desc': desc,
+            'img': img,
+            'review_list': review_list,
+            'review_total': review_total,
             'star_total': star_total
         })
         print(result)
@@ -116,9 +116,7 @@ def check_dup():
 # function: 검색
 @app.route('/search/<search_name>')
 def search(search_name):
-
-
-    rgx = re.compile('.*' + search_name+ '.*', re.IGNORECASE)  # compile the regex
+    rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
     place_list = list(db.places.find({'title': rgx}, {}))
     print(len(place_list))
 
@@ -127,9 +125,6 @@ def search(search_name):
         return render_template('test.html', restaurants=result)
     else:
         return render_template('test.html', mgs='검색결과가 존재하지 않습니다.')
-
-
-
 
 
 # author: 안진우
@@ -145,25 +140,29 @@ def review_post():
     star_recive = request.form['star_give']
 
     doc = {
-        'name' : name_receive,
+        'name': name_receive,
         'star': star_recive,
-        'comment' : comment_receive,
-        'num' : count
+        'comment': comment_receive,
+        'num': count
     }
 
     db.review.insert_one(doc)
-    return jsonify({'msg':'리뷰 작성 완료!!'})
+    return jsonify({'msg': '리뷰 작성 완료!!'})
+
 
 @app.route("/review", methods=["GET"])
 def review_get():
     review_list = list(db.review.find({}, {'_id': False}))
-    return jsonify({'reviews':review_list})
+    return jsonify({'reviews': review_list})
+
 
 @app.route("/review/delete", methods=["POST"])
 def review_delete():
     del_receive = request.form['del_give']
-    db.review.delete_one({'name':del_receive})
+    db.review.delete_one({'name': del_receive})
     print(del_receive)
     return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
+
+
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)

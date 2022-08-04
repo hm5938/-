@@ -212,6 +212,7 @@ def restaurant_post():
         'desc':desc,
         'address':address
     }
+
     db.restaurants.insert_one(doc)
 
     return jsonify({'msg': '등록 완료'})
@@ -220,11 +221,12 @@ def restaurant_post():
 @app.route("/<keyword>", methods=["GET"])
 def restaurant_get(keyword):
     restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
+    result =make_restaurants_list(restaurant_list)
     token_receive = request.cookies.get('mytoken')
     if (token_receive == None):
-        return render_template('comb.html', restaurant_list=restaurant_list)
+        return render_template('comb.html', restaurant_list=result)
     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-    return render_template("comb.html", restaurant_list=restaurant_list, user_info=payload['id'])
+    return render_template("comb.html", restaurant_list=result, user_info=payload['id'])
 
 
 # author: 안진우
