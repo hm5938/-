@@ -144,6 +144,11 @@
             flex-direction: row;
         }
 
+        #front-img {
+            max-height: 208px;
+            object-fit: cover;
+        }
+
         .mypost {
             width: 95%;
             max-width: 800px;
@@ -757,7 +762,7 @@
         <div class="col">
             <div class="card h-100">
                 <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
-                    <img class="card-img-top"
+                    <img class="card-img-top" id="front-img"
                          src={{restaurant['img']}}>
                 </button>
                 <div class="card-body">
