@@ -604,7 +604,7 @@
     </div>
 
     <div onclick="go_home()" class="banner">
-        <h1>맛집 가이드 (가제) </h1>
+        <h1>맛집 가이드 </h1>
     </div>
     {% if user_info is defined %}
     <button onclick="open_box()">맛집 추천하기</button>
@@ -678,17 +678,7 @@
         </div>
     </nav>
 </div>
-<!--리뷰, 별점 정렬-->
-<div class="sort">
-    <form class="input-group mb-3" style="width : 200px;">
-        <label class="input-group-text" for="inputGroupSelect01">정렬</label>
-        <select onchange="send_value(this.value)" class="form-select" id="select_sort">
-            <option selected>Sort</option>
-            <option value="reviews">리뷰👍</option>
-            <option value="stars">별점👍</option>
-        </select>
-    </form>
-</div>
+
 <!--맛집추천-->
 <div class="post-box" id="postbox">
     <div class="form-floating mb-3">
@@ -813,7 +803,6 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary">등록 취소</button>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
                                     </button>
                                 </div>
