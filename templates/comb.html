@@ -416,7 +416,7 @@
                 success: function (response) {
                     alert(response['msg'])
 
-                    // window.location.reload()
+                    window.location.reload()
 
                 }
             });
@@ -750,6 +750,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{restaurant['title']}}</h5>
                     <p class="card-text">{{restaurant['address']}}</p>
+                    <p>후기: {{restaurant['comment']}}</p>
                     <span> ⭐ </span>
                     <span>{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
