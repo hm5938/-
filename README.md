@@ -12,7 +12,7 @@
 | 팀장  | [서정연](https://github.com/yeon1128)    | 회원가입페이지 구현, <br/>맛집 정보 크롤링 기능 구현                                    |
 | 팀원  | [손지아](https://github.com/JJIaa)       | 로그인페이지 구현, <br/>카테고리 별 맛집 리스트 출력 기능, <br/>맛집 추천 포스팅 기능 구현           |
 | 팀원  | [이혜민](https://github.com/hm5938)      | 카테고리별페이지 구현, <br/>회원가입 기능, <br/>맛집 검색 기능 구현, <br/>메인 데이터 전달 기능 구현   |
-| 팀원  | [김학준](https://github.com/lgkrwnsdll)  | 상세페이지 구현, <br/>로그인 및 JWT토큰 관리 기능, <br/>리뷰순/별점순으로 맛집 리스트 정렬 기능 구현 |
+| 팀원  | [김학준](https://github.com/lgkrwnsdll)  | 상세페이지 구현, <br/>로그인 및 JWT토큰 관리 기능  |
 <br/>
 
 ## 📆프로젝트 기간
@@ -58,7 +58,6 @@
 | 리뷰 작성(평점)       | POST   | /review       | 리뷰, 별점, 작성자 ID(토큰), 식당 ID     | msg: 등록 완료  |
 | 리뷰 목록 조회        | GET    | /review       | -                         | 리뷰 리스트      |
 | 리뷰 삭제           | POST   | /review/delete      | 작성자                       | msg: 삭제 완료  |
-| 정렬              |     |               | -                         | msg:        |
 
 
 <br/>
