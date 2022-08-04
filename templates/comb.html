@@ -169,7 +169,7 @@
 
         /*상세 페이지*/
         .detail {
-            /*height: 200px;*/
+            height: 200px;
             margin-bottom: 20px;
             /*border: 2px solid black*/
         }
@@ -217,19 +217,9 @@
             text-align: end;
         }
 
-        .banner {
-            text-align: center;
-
-            cursor: pointer;
-            width: 400px;
-            height: 80px;
-        }
     </style>
-    <script>function go_home() {
-        window.location.href = '/'
-    }
-
-    function open_box() {
+    <script>
+        function open_box() {
             $('#postbox').show()
         }
 
@@ -385,7 +375,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/sort_restaurants?sort_give=" + selected,
+                url: "/sort_places?sort_give=" + selected,
                 data: {},
                 success: function (response) {
                     console.log(response)
@@ -423,7 +413,7 @@
          */
      function save_review(id) {
 
-            let name = $('#username'+id).val()
+            let name = $('#username'+id).attr('placeholder');
             let comment = $('#usercomment'+id).val()
             let star = $('#star'+id).val()
 
@@ -440,11 +430,11 @@
             });
         }
 
-        function delete_review(del) {
+        function delete_review(del,id) {
             $.ajax({
                 type: "POST",
                 url: '/review/delete',
-                data: {del_give: del},
+                data: {del_give: del, place_id : id},
                 success: function (response) {
                     alert(response["msg"])
                     {#console.log(num)#}
@@ -598,9 +588,7 @@
         {% endif %}
     </div>
 
-    <div onclick="go_home()" class="banner">
-        <h1>맛집 가이드 (가제) </h1>
-    </div>
+    <h1>맛집 가이드 (가제) </h1>
     {% if user_info is defined %}
     <button onclick="open_box()">맛집 추천하기</button>
     {% endif %}
@@ -688,7 +676,7 @@
 <div class="post-box" id="postbox">
     <div class="form-floating mb-3">
         <input type="email" class="form-control" id="url" placeholder="맛집 URL">
-        <label for="url">Mango Plate URL</label>
+        <label for="url">SBS TV 맛집 URL</label>
     </div>
     <div class="input-group mb-3">
         <label class="input-group-text" for="selectCategory">카테고리</label>
@@ -736,7 +724,7 @@
 <div class="cards">
     <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
         {% for restaurant in restaurant_list %}
-        <div class="col">
+        <div class="col" >
             <div class="card h-100">
                 <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
                     <img class="card-img-top"
@@ -745,7 +733,8 @@
                 <div class="card-body">
                     <h5 class="card-title">{{restaurant['title']}}</h5>
                     <p class="card-text">{{restaurant['address']}}</p>
-                    <span class="star">{{restaurant['star_total']}}</span>
+                    <span> ⭐ </span>
+                    <span>{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
                     <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -767,7 +756,7 @@
                                     </div>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text" id="basic-addon1">닉네임</span>
-                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="Username"
+                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="{{ user_info }}"
                                                aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                     <div class="input-group mb-3">
@@ -799,7 +788,7 @@
                                         <div id="review">
                                             <p class="name"> {{ review.name }}
                                                 <span>
-                                                        <button class="del" onclick="delete_review('{{ review.name }}')">
+                                                        <button class="del" onclick="delete_review('{{ review.name }}','{{ review.place_id }}')">
                                                             <i class="fa fa-trash-o"></i>
                                                         </button>
                                                 </span>
@@ -825,82 +814,81 @@
 
 
     <!--    정렬 기능-->
-<!--    {% for place in sorted_list %}-->
-<!--    <div class="col">-->
-<!--        <div class="card h-100">-->
-<!--            <button type="button" class="btn" data-bs-toggle="modal"-->
-<!--                    data-bs-target="#exampleModal">-->
-<!--                <img class="card-img-top"-->
-<!--                     src="${image}">-->
-<!--            </button>-->
-<!--            <div class="card-body">-->
-<!--                <h5 class="card-title">${name}</h5>-->
-<!--                <p class="card-text">${spot}</p>-->
-<!--                <span>${star_image}</span>-->
-<!--                <span class="comment">reviews 12</span>-->
+    {% for place in sorted_list %}
+    <div class="col">
+        <div class="card h-100">
+            <button type="button" class="btn" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">
+                <img class="card-img-top"
+                     src="${image}">
+            </button>
+            <div class="card-body">
+                <h5 class="card-title">${name}</h5>
+                <p class="card-text">${spot}</p>
+                <span>${star_image}</span>
+                <span class="comment">reviews 12</span>
 
-<!--                &lt;!&ndash; Modal &ndash;&gt;-->
-<!--                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
-<!--                     aria-hidden="true">-->
-<!--                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">-->
-<!--                        <div class="modal-content">-->
-<!--                            <div class="modal-header">-->
-<!--                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>-->
-<!--                                <button type="button" class="btn-close" data-bs-dismiss="modal"-->
-<!--                                        aria-label="Close"></button>-->
-<!--                            </div>-->
-<!--                            <div class="modal-body">-->
-<!--                                <div class="detail">-->
-<!--                                    img - 크롤링-->
-<!--                                    <p><img src="${image}"></p>>-->
-<!--                                </div>-->
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="detail">
+                                    img - 크롤링
+                                    <p><img src="${image}"></p>>
+                                </div>
 
-<!--                                <div class="detail">-->
-<!--                                    explanation - 크롤링-->
-<!--                                    <p>${name}</p>-->
-<!--                                    <p>${spot}</p>-->
-<!--                                    <p>${desc}</p>-->
-<!--                                    <p>${comment}</p>-->
-<!--                                </div>-->
+                                <div class="detail">
+                                    explanation - 크롤링
+                                    <p>${name}</p>
+                                    <p>${spot}</p>
+                                    <p>${desc}</p>
+                                    <p>${comment}</p>
+                                </div>
 
-<!--                                <div class="input-group mb-3">-->
-<!--                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>-->
-<!--                                    <select class="form-select" id="inputGroupSelect01">-->
-<!--                                        <option selected>Choose...</option>-->
-<!--                                        <option value="1">One</option>-->
-<!--                                        <option value="2">Two</option>-->
-<!--                                        <option value="3">Three</option>-->
-<!--                                        <option value="4">Four</option>-->
-<!--                                        <option value="5">Five</option>-->
-<!--                                    </select>-->
-<!--                                </div>-->
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                                    <select class="form-select" id="inputGroupSelect01">
+                                        <option selected>Choose...</option>
+                                        <option value="1">One</option>
+                                        <option value="2">Two</option>
+                                        <option value="3">Three</option>
+                                        <option value="4">Four</option>
+                                        <option value="5">Five</option>
+                                    </select>
+                                </div>
 
-<!--                                <div class="form-floating comment">-->
-<!--                                    <textarea class="form-control" placeholder="Leave a comment here"-->
-<!--                                              id="floatingTextarea2"-->
-<!--                                              style="height: 100px"></textarea>-->
-<!--                                    <label for="floatingTextarea2">Comments</label>-->
-<!--                                    <button type="submit" class="btn btn-primary">Submit</button>-->
+                                <div class="form-floating comment">
+                                    <textarea class="form-control" placeholder="Leave a comment here"
+                                              id="floatingTextarea2"
+                                              style="height: 100px"></textarea>
+                                    <label for="floatingTextarea2">Comments</label>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
 
-<!--                                </div>-->
+                                </div>
 
-<!--                                <div class="detail">-->
-<!--                                    댓글 목록 - db추출-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                            <div class="modal-footer">-->
-<!--                                <button type="button" class="btn btn-primary">등록 취소</button>-->
-<!--                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    {% endfor %}-->
+                                <div class="detail">
+                                    댓글 목록 - db추출
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary">등록 취소</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
-
 </body>
 </html>
