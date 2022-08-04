@@ -411,14 +411,18 @@
          * author: 안진우
          * function: 리뷰 저장, 삭제
          */
-        function save_review() {
-            let name = $('#name').val()
-            let comment = $('#floatingTextarea2').val()
-            let star = $('#star').val()
+     function save_review(id) {
+
+            let name = $('#username'+id).val()
+            let comment = $('#usercomment'+id).val()
+            let star = $('#star'+id).val()
+
+
+            console.log(name, comment, star )
             $.ajax({
                 type: "POST",
                 url: "/review",
-                data: {name_give: name, comment_give: comment, star_give: star},
+                data: {name_give: name, comment_give: comment, star_give: star, place_give:id},
                 success: function (response) {
                     alert(response["msg"])
                     window.location.reload()
@@ -751,12 +755,12 @@
                                     </div>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text" id="basic-addon1">닉네임</span>
-                                        <input id="name" type="text" class="form-control" placeholder="Username"
+                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="Username"
                                                aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                     <div class="input-group mb-3">
-                                        <label class="input-group-text" for="star">별점</label>
-                                        <select class="form-select" id="star">
+                                        <label class="input-group-text" for="star{{restaurant.id}}">별점</label>
+                                        <select class="form-select" id="star{{restaurant.id}}">
                                             <option selected>별점</option>
                                             <option value="1">⭐</option>
                                             <option value="2">⭐⭐</option>
@@ -768,10 +772,10 @@
 
                                     <div class="form-floating comment">
                                         <textarea class="form-control" placeholder="Leave a comment here"
-                                                  id="floatingTextarea2"
+                                                  id="usercomment{{restaurant.id}}"
                                                   style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Comments</label>
-                                        <button type="submit" class="btn btn-primary" onclick="save_review()">Submit
+                                        <button type="submit" id='{{restaurant.id}}'class="btn btn-primary" onclick="save_review(this.id)">Submit
                                         </button>
 
                                     </div>
@@ -885,6 +889,5 @@
     </div>
     {% endfor %}
 </div>
-
 </body>
 </html>

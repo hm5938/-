@@ -113,15 +113,16 @@ def find_review_with_place(place_id):
     count = len(review_list)
     avg = 0
     for review in review_list :
-        avg = round(avg + int(review['star']) / count, 2)
+        if(review['star']!='별점'):
+            avg = round(avg + int(review['star']) / count, 2)
     return {'reviews':review_list,'count':count,'avg':avg}
 
 def make_restaurants_list(place_list):
     result = list()
     for place in place_list :
 
-        print(place)
-        id = place['_id']
+        # print(place)
+        id = str(place['_id'])
         reviews = find_review_with_place(id)
         title=place['title']
         address =place['address']
@@ -143,7 +144,7 @@ def make_restaurants_list(place_list):
             'review_total':review_total,
             'star_total': star_total
         })
-
+    print(result)
     return result
 
 # author: 이혜민
@@ -237,12 +238,14 @@ def review_post():
     name_receive = request.form['name_give']
     comment_receive = request.form['comment_give']
     star_recive = request.form['star_give']
+    place_receive = request.form['place_give']
 
     doc = {
         'name' : name_receive,
         'star': star_recive,
         'comment' : comment_receive,
-        'num' : count
+        'num' : count,
+        'place_id': place_receive
     }
 
     db.review.insert_one(doc)
