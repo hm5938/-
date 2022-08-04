@@ -98,17 +98,6 @@ def login():
 #     except jwt.exceptions.DecodeError:
 #         return jsonify({'result': 'fail', 'msg': '로그인 정보가 존재하지 않습니다.'})
 
-# 정렬(미완성)
-@app.route('/sort_restaurants', methods=['GET'])
-def sort_places():
-    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-    # data = requests.get(request.url, headers=headers)
-    # soup = BeautifulSoup(data.text, 'html.parser')
-    # print(soup.select('div.col'))
-
-    sort_receive = request.args.get('sort_give')
-
-    return jsonify({"result": sort_receive})
 
 
 # Author : 이혜민
@@ -124,6 +113,7 @@ def find_review_with_place(place_id):
 
 def make_restaurants_list(place_list):
     result = list()
+    # print(place_list)
     for place in place_list:
 
         # print(place)
@@ -153,7 +143,7 @@ def make_restaurants_list(place_list):
             'review_total':review_total,
             'star_total': star_total
         })
-    print(result)
+    #print(result)
     return result
 
 # author: 이혜민
@@ -175,6 +165,47 @@ def search(search_name):
         # 비회원인 경우
         return render_template('comb.html', restaurant_list=result)
 
+
+# author: 이혜민
+# function: 정렬
+@app.route('/<keyword>/sort/<sort>')
+def sort_places(keyword, sort):
+    restaurant_list = list(db.restaurants.find({}, {}))
+    restaurant_list = make_restaurants_list(restaurant_list)
+    token_receive = request.cookies.get('mytoken')
+
+
+    sort_list = list()
+    if sort == '0':  # 리뷰순
+        sort_list = sorted(restaurant_list, key=(lambda x: x['review_total']),reverse=True)
+    elif sort == '1':  # 별점순
+        sort_list = sorted(restaurant_list, key=(lambda x: x['star_total']),reverse=True)
+
+    if (token_receive == None):
+        return render_template('comb.html', restaurant_list=sort_list)
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    return render_template("comb.html", restaurant_list=sort_list, user_info=payload['id'])
+
+
+@app.route('/sort/<sort>')
+def sort_places2(sort):
+    restaurant_list = list(db.restaurants.find({}, {}))
+    restaurant_list = make_restaurants_list(restaurant_list)
+    token_receive = request.cookies.get('mytoken')
+
+    sort_list = list()
+    if sort == '0':#리뷰순
+        sort_list = sorted(restaurant_list, key=(lambda x: x['review_total']), reverse=True)
+        print(sort)
+    elif sort == '1':#별점순
+        sort_list = sorted(restaurant_list, key=(lambda x: x['star_total']),reverse=True)
+        print(sort)
+
+    # print(sort_list)
+    if (token_receive == None):
+        return render_template('comb.html', restaurant_list=sort_list)
+    payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+    return render_template("comb.html", restaurant_list=sort_list, user_info=payload['id'])
 
 
 
@@ -260,7 +291,7 @@ def review_get():
 def review_delete():
     del_receive = request.form['del_give']
     db.review.delete_one({'name':del_receive})
-    print(del_receive)
+    #print(del_receive)
     return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
 
 if __name__ == '__main__':

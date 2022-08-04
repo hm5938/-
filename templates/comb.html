@@ -235,270 +235,261 @@
     }
 
     function open_box() {
-            $('#postbox').show()
+        $('#postbox').show()
+    }
+
+    function close_box() {
+        $('#postbox').hide()
+    }
+
+    /**
+     * Author : 이혜민
+     * function : 회원가입 기능**/
+
+    function is_nickname(asValue) {
+        var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
+        return regExp.test(asValue);
+    }
+
+    function is_password(asValue) {
+        var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
+        return regExp.test(asValue);
+    }
+
+    //아이디 형식 중복체크함수
+    function check_dup() {
+        let username = $("#input-username").val()
+        console.log(username)
+        if (username == "") {
+            $("#help-id").text("아이디를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+            $("#input-username").focus()
+            return;
         }
-
-        function close_box() {
-            $('#postbox').hide()
+        if (!is_nickname(username)) {
+            $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")
+            $("#input-username").focus()
+            return;
         }
-
-        /**
-         * Author : 이혜민
-         * function : 회원가입 기능**/
-
-        function is_nickname(asValue) {
-            var regExp = /^(?=.*[a-zA-Z])[-a-zA-Z0-9_.]{2,10}$/;
-            return regExp.test(asValue);
-        }
-
-        function is_password(asValue) {
-            var regExp = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*]{8,20}$/;
-            return regExp.test(asValue);
-        }
-
-        //아이디 형식 중복체크함수
-        function check_dup() {
-            let username = $("#input-username").val()
-            console.log(username)
-            if (username == "") {
-                $("#help-id").text("아이디를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                $("#input-username").focus()
-                return;
-            }
-            if (!is_nickname(username)) {
-                $("#help-id").text("아이디의 형식을 확인해주세요. 영문과 숫자, 일부 특수문자(._-) 사용 가능. 2-10자 길이").removeClass("is-safe").addClass("is-danger")
-                $("#input-username").focus()
-                return;
-            }
-            $("#help-id").addClass("is-loading")
-            $.ajax({
-                type: "POST",
-                url: "/sign_up/check_dup",
-                data: {
-                    username_give: username
-                },
-                success: function (response) {
-                    if (response["exists"]) {
-                        $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")
-                        $("#input-username").focus()
-                    } else {
-                        $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")
-                    }
-                    $("#help-id").removeClass("is-loading")
-
+        $("#help-id").addClass("is-loading")
+        $.ajax({
+            type: "POST",
+            url: "/sign_up/check_dup",
+            data: {
+                username_give: username
+            },
+            success: function (response) {
+                if (response["exists"]) {
+                    $("#help-id").text("이미 존재하는 아이디입니다.").removeClass("is-safe").addClass("is-danger")
+                    $("#input-username").focus()
+                } else {
+                    $("#help-id").text("사용할 수 있는 아이디입니다.").removeClass("is-danger").addClass("is-success")
                 }
-            });
-        }
+                $("#help-id").removeClass("is-loading")
 
-        function sign_up() {
-            let username = $("#input-username").val()
-            let password = $("#input-password").val()
-            let password2 = $("#input-password2").val()
-            console.log(username, password, password2)
-
-            if ($("#help-id").hasClass("is-danger")) {
-                alert("아이디를 다시 확인해주세요.")
-                return;
-            } else if (!$("#help-id").hasClass("is-success")) {
-                alert("아이디 중복확인을 해주세요.")
-                return;
             }
-
-            if (password == "") {
-                $("#help-password").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                // alert("비밀번호를 입력해주세요.")
-                $("#input-password").focus()
-                return;
-            } else if (!is_password(password)) {
-                $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").removeClass("is-safe").addClass("is-danger")
-                $("#input-password").focus()
-                return
-            } else {
-                $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
-            }
-            if (password2 == "") {
-                $("#help-password2").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
-                $("#input-password2").focus()
-                return;
-            } else if (password2 != password) {
-                $("#help-password2").text("비밀번호가 일치하지 않습니다.").removeClass("is-safe").addClass("is-danger")
-                $("#input-password2").focus()
-                return;
-            } else {
-                $("#help-password2").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
-            }
-            $.ajax({
-                type: "POST",
-                url: "/sign_up/save",
-                data: {
-                    username_give: username,
-                    password_give: password
-                },
-                success: function (response) {
-                    alert("회원가입을 축하드립니다! 다시 로그인 해 주세요")
-                    window.location.replace("/")
-                }
-            });
-        }
-
-        function init_sign_input() {
-            $("#help-id").toggleClass("is-hidden")
-            $("#help-password").toggleClass("is-hidden")
-            $("#help-password2").toggleClass("is-hidden")
-
-            $("#input-username").val('')
-            $("#input-password").val('')
-            $("#input-password2").val('')
-        }
-
-        /**
-         * author: 김학준
-         * function: 로그인
-         */
-        function login() {
-            $.ajax({
-                type: "POST",
-                url: "/login",
-                data: {id_give: $('#floatingInput').val(), pw_give: $('#floatingPassword').val()},
-                success: function (response) {
-                    if (response['result'] == 'success') {
-                        // 로그인이 정상적으로 되면, 토큰을 받아옵니다.
-                        // 이 토큰을 mytoken이라는 키 값으로 쿠키에 저장합니다.
-                        $.cookie('mytoken', response['token']);
-
-                        alert('로그인 완료!')
-                        window.location.href = '/'
-                    } else {
-                        // 로그인이 안되면 에러메시지를 띄웁니다.
-                        alert(response['msg'])
-                    }
-                }
-            })
-        }
-
-        // 로그아웃
-        function logout() {
-                $.removeCookie('mytoken', {path: '/'});
-                alert('로그아웃!')
-                window.location.href = "/"
-            }
-
-
-        // 정렬
-        function send_value(val) {
-            let selected = val
-
-            $.ajax({
-                type: "GET",
-                url: "/sort_restaurants?sort_give=" + selected,
-                data: {},
-                success: function (response) {
-                    console.log(response)
-                }
-            });
-
-        }
-
-        /**
-         * Author : 손지아
-         * function : 포스팅하기
-         */
-        function posting() {
-            let url = $('#url').val()
-            let category = $('#selectCategory').val()
-            let star = $('#selectStar').val()
-            let comment = $('#comment').val()
-
-            $.ajax({
-                type: 'POST',
-                url: '/post_place',
-                data: {url_give: url, category_give: category, star_give: star, comment_give: comment},
-                success: function (response) {
-                    alert(response['msg'])
-
-                    // window.location.reload()
-
-                }
-            });
-        }
-
-        /**
-         * author: 안진우
-         * function: 리뷰 저장, 삭제
-         */
-     function save_review(id) {
-
-            let name = $('#username'+id).val()
-            let comment = $('#usercomment'+id).val()
-            let star = $('#star'+id).val()
-
-
-            console.log(name, comment, star )
-            $.ajax({
-                type: "POST",
-                url: "/review",
-                data: {name_give: name, comment_give: comment, star_give: star, place_give:id},
-                success: function (response) {
-                    alert(response["msg"])
-                    window.location.reload()
-                }
-            });
-        }
-
-        function delete_review(del) {
-            $.ajax({
-                type: "POST",
-                url: '/review/delete',
-                data: {del_give: del},
-                success: function (response) {
-                    alert(response["msg"])
-                    {#console.log(num)#}
-                    window.location.reload()
-                }
-            })
-        }
-
-        /**Author : 이혜민
-         * Function : 식당 검색
-         * **/
-        function search() {
-
-            var regExp = /^[가-힣a-zA-Z\s]+$/;
-            console.log('search')
-            let restaurant = $('#search').val()
-            if(regExp.test(restaurant)){
-                         temp_href = '/search/' + restaurant.toString()
-            window.location.href = temp_href;
-            }else{
-                alert("검색어를 입력해주세요. 영어, 한글만 가능합니다")
-            }
-
-        }
-
-        // function test_search() {
-        //     var regExp = /^[가-힣a-zA-Z\s]+$/;
-        //     let restaurant = $('#search').val()
-        //     let temp_href = ''
-        //     if(regExp.test(restaurant)){
-        //         temp_href = restaurant.toString()
-        //     }
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '/search?search_give=' + temp_href,
-        //         data: {},
-        //         success: function (response) {
-        //             alert('hi')
-        //
-        //         }
-        //     });
-        // }
-
-
-        $(function () {
-            $('.nav-link').click(function () {
-                alert(this.text)
-            });
         });
+    }
+
+    function sign_up() {
+        let username = $("#input-username").val()
+        let password = $("#input-password").val()
+        let password2 = $("#input-password2").val()
+        console.log(username, password, password2)
+
+        if ($("#help-id").hasClass("is-danger")) {
+            alert("아이디를 다시 확인해주세요.")
+            return;
+        } else if (!$("#help-id").hasClass("is-success")) {
+            alert("아이디 중복확인을 해주세요.")
+            return;
+        }
+
+        if (password == "") {
+            $("#help-password").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+            // alert("비밀번호를 입력해주세요.")
+            $("#input-password").focus()
+            return;
+        } else if (!is_password(password)) {
+            $("#help-password").text("비밀번호의 형식을 확인해주세요. 영문과 숫자 필수 포함, 특수문자(!@#$%^&*) 사용가능 8-20자").removeClass("is-safe").addClass("is-danger")
+            $("#input-password").focus()
+            return
+        } else {
+            $("#help-password").text("사용할 수 있는 비밀번호입니다.").removeClass("is-danger").addClass("is-success")
+        }
+        if (password2 == "") {
+            $("#help-password2").text("비밀번호를 입력해주세요.").removeClass("is-safe").addClass("is-danger")
+            $("#input-password2").focus()
+            return;
+        } else if (password2 != password) {
+            $("#help-password2").text("비밀번호가 일치하지 않습니다.").removeClass("is-safe").addClass("is-danger")
+            $("#input-password2").focus()
+            return;
+        } else {
+            $("#help-password2").text("비밀번호가 일치합니다.").removeClass("is-danger").addClass("is-success")
+        }
+        $.ajax({
+            type: "POST",
+            url: "/sign_up/save",
+            data: {
+                username_give: username,
+                password_give: password
+            },
+            success: function (response) {
+                alert("회원가입을 축하드립니다! 다시 로그인 해 주세요")
+                window.location.replace("/")
+            }
+        });
+    }
+
+    function init_sign_input() {
+        $("#help-id").toggleClass("is-hidden")
+        $("#help-password").toggleClass("is-hidden")
+        $("#help-password2").toggleClass("is-hidden")
+
+        $("#input-username").val('')
+        $("#input-password").val('')
+        $("#input-password2").val('')
+    }
+
+
+
+
+    /**
+     * author: 김학준
+     * function: 로그인
+     */
+    function login() {
+        $.ajax({
+            type: "POST",
+            url: "/login",
+            data: {id_give: $('#floatingInput').val(), pw_give: $('#floatingPassword').val()},
+            success: function (response) {
+                if (response['result'] == 'success') {
+                    // 로그인이 정상적으로 되면, 토큰을 받아옵니다.
+                    // 이 토큰을 mytoken이라는 키 값으로 쿠키에 저장합니다.
+                    $.cookie('mytoken', response['token']);
+
+                    alert('로그인 완료!')
+                    window.location.href = '/'
+                } else {
+                    // 로그인이 안되면 에러메시지를 띄웁니다.
+                    alert(response['msg'])
+                }
+            }
+        })
+    }
+
+    // 로그아웃
+    function logout() {
+        $.removeCookie('mytoken', {path: '/'});
+        alert('로그아웃!')
+        window.location.href = "/"
+    }
+
+
+    /**
+     * Author : 손지아
+     * function : 포스팅하기
+     */
+    function posting() {
+        let url = $('#url').val()
+        let category = $('#selectCategory').val()
+        let star = $('#selectStar').val()
+        let comment = $('#comment').val()
+
+        $.ajax({
+            type: 'POST',
+            url: '/post_place',
+            data: {url_give: url, category_give: category, star_give: star, comment_give: comment},
+            success: function (response) {
+                alert(response['msg'])
+
+                // window.location.reload()
+
+            }
+        });
+    }
+
+    /**
+     * author: 안진우
+     * function: 리뷰 저장, 삭제
+     */
+    function save_review(id) {
+
+        let name = $('#username' + id).val()
+        let comment = $('#usercomment' + id).val()
+        let star = $('#star' + id).val()
+
+
+        console.log(name, comment, star)
+        $.ajax({
+            type: "POST",
+            url: "/review",
+            data: {name_give: name, comment_give: comment, star_give: star, place_give: id},
+            success: function (response) {
+                alert(response["msg"])
+                window.location.reload()
+            }
+        });
+    }
+
+    function delete_review(del) {
+        $.ajax({
+            type: "POST",
+            url: '/review/delete',
+            data: {del_give: del},
+            success: function (response) {
+                alert(response["msg"])
+                {
+                    #console.log(num)
+                #
+                }
+                window.location.reload()
+            }
+        })
+    }
+
+    /**Author : 이혜민
+     * Function : 식당 검색
+     * **/
+    function search() {
+
+        var regExp = /^[가-힣a-zA-Z\s]+$/;
+        console.log('search')
+        let restaurant = $('#search').val()
+        if (regExp.test(restaurant)) {
+            temp_href = '/search/' + restaurant.toString()
+            window.location.href = temp_href;
+        } else {
+            alert("검색어를 입력해주세요. 영어, 한글만 가능합니다")
+        }
+
+    }
+
+    // function test_search() {
+    //     var regExp = /^[가-힣a-zA-Z\s]+$/;
+    //     let restaurant = $('#search').val()
+    //     let temp_href = ''
+    //     if(regExp.test(restaurant)){
+    //         temp_href = restaurant.toString()
+    //     }
+    //     $.ajax({
+    //         type: 'GET',
+    //         url: '/search?search_give=' + temp_href,
+    //         data: {},
+    //         success: function (response) {
+    //             alert('hi')
+    //
+    //         }
+    //     });
+    // }
+
+
+    $(function () {
+        $('.nav-link').click(function () {
+            alert(this.text)
+        });
+    });
     </script>
 </head>
 <body>
@@ -761,7 +752,8 @@
         {% for restaurant in restaurant_list %}
         <div class="col">
             <div class="card h-100">
-                <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#{{restaurant.title.replace(' ', '')}}">
+                <button type="button" class="btn" data-bs-toggle="modal"
+                        data-bs-target="#{{restaurant.title.replace(' ', '')}}">
                     <img class="card-img-top" id="front-img"
                          src={{restaurant['img']}}>
                 </button>
@@ -771,7 +763,8 @@
                     <span class="star">{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
-                    <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1"
+                         aria-labelledby="exampleModalLabel"
                          aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content">
@@ -781,16 +774,17 @@
                                             aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                     <div class="detail">
+                                    <div class="detail">
                                         <img class="card-img-top"
                                              src={{restaurant['img']}}>
-                                         <p> {{restaurant['desc']}}</p>
+                                        <p> {{restaurant['desc']}}</p>
                                     </div>
                                     <div class="detail">
                                     </div>
                                     <div class="input-group mb-3">
                                         <span class="input-group-text" id="basic-addon1">닉네임</span>
-                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="Username"
+                                        <input id="username{{restaurant.id}}" type="text" class="form-control"
+                                               placeholder="Username"
                                                aria-label="Username" aria-describedby="basic-addon1">
                                     </div>
                                     <div class="input-group mb-3">
@@ -810,7 +804,8 @@
                                                   id="usercomment{{restaurant.id}}"
                                                   style="height: 100px"></textarea>
                                         <label for="floatingTextarea2">Comments</label>
-                                        <button type="submit" id='{{restaurant.id}}'class="btn btn-primary" onclick="save_review(this.id)">Submit
+                                        <button type="submit" id='{{restaurant.id}}' class="btn btn-primary"
+                                                onclick="save_review(this.id)">Submit
                                         </button>
 
                                     </div>
@@ -822,7 +817,8 @@
                                         <div id="review">
                                             <p class="name"> {{ review.name }}
                                                 <span>
-                                                        <button class="del" onclick="delete_review('{{ review.name }}')">
+                                                        <button class="del"
+                                                                onclick="delete_review('{{ review.name }}')">
                                                             <i class="fa fa-trash-o"></i>
                                                         </button>
                                                 </span>
@@ -848,82 +844,116 @@
 
 
     <!--    정렬 기능-->
-<!--    {% for place in sorted_list %}-->
-<!--    <div class="col">-->
-<!--        <div class="card h-100">-->
-<!--            <button type="button" class="btn" data-bs-toggle="modal"-->
-<!--                    data-bs-target="#exampleModal">-->
-<!--                <img class="card-img-top"-->
-<!--                     src="${image}">-->
-<!--            </button>-->
-<!--            <div class="card-body">-->
-<!--                <h5 class="card-title">${name}</h5>-->
-<!--                <p class="card-text">${spot}</p>-->
-<!--                <span>${star_image}</span>-->
-<!--                <span class="comment">reviews 12</span>-->
+    <!--    {% for place in sorted_list %}-->
+    <!--    <div class="col">-->
+    <!--        <div class="card h-100">-->
+    <!--            <button type="button" class="btn" data-bs-toggle="modal"-->
+    <!--                    data-bs-target="#exampleModal">-->
+    <!--                <img class="card-img-top"-->
+    <!--                     src="${image}">-->
+    <!--            </button>-->
+    <!--            <div class="card-body">-->
+    <!--                <h5 class="card-title">${name}</h5>-->
+    <!--                <p class="card-text">${spot}</p>-->
+    <!--                <span>${star_image}</span>-->
+    <!--                <span class="comment">reviews 12</span>-->
 
-<!--                &lt;!&ndash; Modal &ndash;&gt;-->
-<!--                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
-<!--                     aria-hidden="true">-->
-<!--                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">-->
-<!--                        <div class="modal-content">-->
-<!--                            <div class="modal-header">-->
-<!--                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>-->
-<!--                                <button type="button" class="btn-close" data-bs-dismiss="modal"-->
-<!--                                        aria-label="Close"></button>-->
-<!--                            </div>-->
-<!--                            <div class="modal-body">-->
-<!--                                <div class="detail">-->
-<!--                                    img - 크롤링-->
-<!--                                    <p><img src="${image}"></p>>-->
-<!--                                </div>-->
+    <!--                &lt;!&ndash; Modal &ndash;&gt;-->
+    <!--                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"-->
+    <!--                     aria-hidden="true">-->
+    <!--                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">-->
+    <!--                        <div class="modal-content">-->
+    <!--                            <div class="modal-header">-->
+    <!--                                <h5 class="modal-title" id="exampleModalLabel">상세 소개</h5>-->
+    <!--                                <button type="button" class="btn-close" data-bs-dismiss="modal"-->
+    <!--                                        aria-label="Close"></button>-->
+    <!--                            </div>-->
+    <!--                            <div class="modal-body">-->
+    <!--                                <div class="detail">-->
+    <!--                                    img - 크롤링-->
+    <!--                                    <p><img src="${image}"></p>>-->
+    <!--                                </div>-->
 
-<!--                                <div class="detail">-->
-<!--                                    explanation - 크롤링-->
-<!--                                    <p>${name}</p>-->
-<!--                                    <p>${spot}</p>-->
-<!--                                    <p>${desc}</p>-->
-<!--                                    <p>${comment}</p>-->
-<!--                                </div>-->
+    <!--                                <div class="detail">-->
+    <!--                                    explanation - 크롤링-->
+    <!--                                    <p>${name}</p>-->
+    <!--                                    <p>${spot}</p>-->
+    <!--                                    <p>${desc}</p>-->
+    <!--                                    <p>${comment}</p>-->
+    <!--                                </div>-->
 
-<!--                                <div class="input-group mb-3">-->
-<!--                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>-->
-<!--                                    <select class="form-select" id="inputGroupSelect01">-->
-<!--                                        <option selected>Choose...</option>-->
-<!--                                        <option value="1">One</option>-->
-<!--                                        <option value="2">Two</option>-->
-<!--                                        <option value="3">Three</option>-->
-<!--                                        <option value="4">Four</option>-->
-<!--                                        <option value="5">Five</option>-->
-<!--                                    </select>-->
-<!--                                </div>-->
+    <!--                                <div class="input-group mb-3">-->
+    <!--                                    <label class="input-group-text" for="inputGroupSelect01">별점</label>-->
+    <!--                                    <select class="form-select" id="inputGroupSelect01">-->
+    <!--                                        <option selected>Choose...</option>-->
+    <!--                                        <option value="1">One</option>-->
+    <!--                                        <option value="2">Two</option>-->
+    <!--                                        <option value="3">Three</option>-->
+    <!--                                        <option value="4">Four</option>-->
+    <!--                                        <option value="5">Five</option>-->
+    <!--                                    </select>-->
+    <!--                                </div>-->
 
-<!--                                <div class="form-floating comment">-->
-<!--                                    <textarea class="form-control" placeholder="Leave a comment here"-->
-<!--                                              id="floatingTextarea2"-->
-<!--                                              style="height: 100px"></textarea>-->
-<!--                                    <label for="floatingTextarea2">Comments</label>-->
-<!--                                    <button type="submit" class="btn btn-primary">Submit</button>-->
+    <!--                                <div class="form-floating comment">-->
+    <!--                                    <textarea class="form-control" placeholder="Leave a comment here"-->
+    <!--                                              id="floatingTextarea2"-->
+    <!--                                              style="height: 100px"></textarea>-->
+    <!--                                    <label for="floatingTextarea2">Comments</label>-->
+    <!--                                    <button type="submit" class="btn btn-primary">Submit</button>-->
 
-<!--                                </div>-->
+    <!--                                </div>-->
 
-<!--                                <div class="detail">-->
-<!--                                    댓글 목록 - db추출-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                            <div class="modal-footer">-->
-<!--                                <button type="button" class="btn btn-primary">등록 취소</button>-->
-<!--                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    {% endfor %}-->
+    <!--                                <div class="detail">-->
+    <!--                                    댓글 목록 - db추출-->
+    <!--                                </div>-->
+    <!--                            </div>-->
+    <!--                            <div class="modal-footer">-->
+    <!--                                <button type="button" class="btn btn-primary">등록 취소</button>-->
+    <!--                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close-->
+    <!--                                </button>-->
+    <!--                            </div>-->
+    <!--                        </div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+    <!--    {% endfor %}-->
 </div>
 
+<script>
+        /**
+     * Author : 이혜민
+     * function : 정렬 기능**/
+    function send_value(val) {
+        let selected = val
+        console.log(selected)
+        const link = document.location.href
+        console.log(link.split('/'))
+
+        let l = link.split('/').length
+
+        let sort = 0
+        if (selected == 'reviews') {
+            sort = 1
+        } else if (selected == 'stars') {
+            sort = 2
+        }
+        let pages = link.split('/')
+
+        if (pages[l - 1] == "") {
+            window.location.href = "/sort/" + sort
+        } else if (!pages.includes('sort')) {
+            let eyword = link.split('/')[l - 1]
+            window.location.href = "/" + keyword + "/sort/" + sort
+        } else {
+            let temp_href = ''
+            for (let i = 0; pages.length - 1; i++) {
+                temp_href += pages[i] + "/"
+            }
+            window.location.href = temp_href +sort
+        }
+    }
+</script>
 </body>
 </html>
