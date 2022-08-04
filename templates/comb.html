@@ -416,7 +416,7 @@
                 success: function (response) {
                     alert(response['msg'])
 
-                    // window.location.reload()
+                    window.location.reload()
 
                 }
             });
@@ -428,7 +428,7 @@
          */
      function save_review(id) {
 
-            let name = $('#username'+id).val()
+            // let name = $('#username'+id).val()
             let comment = $('#usercomment'+id).val()
             let star = $('#star'+id).val()
 
@@ -445,11 +445,11 @@
             });
         }
 
-        function delete_review(del) {
+        function delete_review(del,id,user) {
             $.ajax({
                 type: "POST",
                 url: '/review/delete',
-                data: {del_give: del},
+                data: {del_give: del, place_id : id, token_give : user},
                 success: function (response) {
                     alert(response["msg"])
                     {#console.log(num)#}
@@ -474,24 +474,6 @@
             }
 
         }
-
-        // function test_search() {
-        //     var regExp = /^[가-힣a-zA-Z\s]+$/;
-        //     let restaurant = $('#search').val()
-        //     let temp_href = ''
-        //     if(regExp.test(restaurant)){
-        //         temp_href = restaurant.toString()
-        //     }
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '/search?search_give=' + temp_href,
-        //         data: {},
-        //         success: function (response) {
-        //             alert('hi')
-        //
-        //         }
-        //     });
-        // }
 
 
         $(function () {
@@ -768,7 +750,9 @@
                 <div class="card-body">
                     <h5 class="card-title">{{restaurant['title']}}</h5>
                     <p class="card-text">{{restaurant['address']}}</p>
-                    <span class="star">{{restaurant['star_total']}}</span>
+                    <p>후기: {{restaurant['comment']}}</p>
+                    <span> ⭐ </span>
+                    <span>{{restaurant['star_total']}}</span>
                     <span class="comment">reviews {{restaurant['review_total']}}</span>
                     <!-- Modal -->
                     <div class="modal fade" id="{{ restaurant.title.replace(' ', '') }}" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -788,11 +772,7 @@
                                     </div>
                                     <div class="detail">
                                     </div>
-                                    <div class="input-group mb-3">
-                                        <span class="input-group-text" id="basic-addon1">닉네임</span>
-                                        <input id="username{{restaurant.id}}" type="text" class="form-control" placeholder="Username"
-                                               aria-label="Username" aria-describedby="basic-addon1">
-                                    </div>
+
                                     <div class="input-group mb-3">
                                         <label class="input-group-text" for="star{{restaurant.id}}">별점</label>
                                         <select class="form-select" id="star{{restaurant.id}}">
@@ -822,7 +802,7 @@
                                         <div id="review">
                                             <p class="name"> {{ review.name }}
                                                 <span>
-                                                        <button class="del" onclick="delete_review('{{ review.name }}')">
+                                                        <button class="del" onclick="delete_review('{{ review.name }}','{{ review.place_id }}','{{ user_info }}')">
                                                             <i class="fa fa-trash-o"></i>
                                                         </button>
                                                 </span>
