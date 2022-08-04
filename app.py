@@ -71,7 +71,8 @@ def login():
     if result is not None:
         payload = {
             'id': id_receive,
-            'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
+            # 'exp': datetime.utcnow() + timedelta(minutes=30) # 30분 후 만료
+            'exp': datetime.utcnow() + timedelta(days=1) # 하루 후 만료
         }
 
         token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
@@ -156,25 +157,18 @@ def make_restaurants_list(place_list):
 @app.route('/search/<search_name>')
 def search(search_name):
     rgx = re.compile('.*' + search_name + '.*', re.IGNORECASE)  # compile the regex
-    place_list = list(db.restaurants.find({'title': rgx}, {}))
-    print(len(place_list))
+    restaurant_list = list(db.restaurants.find({'title': rgx}, {}))
+    result = make_restaurants_list(restaurant_list)
 
-    # 검색 결과 없을 때
-    if not place_list:
-        # return render_template('comb.html', mgs='검색결과가 존재하지 않습니다.')
-        return redirect('/')
 
-    # 검색 결과 있을 때
     try:
         token_receive = request.cookies.get('mytoken')
         payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
 
         # 회원 인증된 경우
-        result = make_restaurants_list(place_list)
         return render_template('comb.html', restaurant_list=result, user_info=payload['id'])
     except:
         # 비회원인 경우
-        result = make_restaurants_list(place_list)
         return render_template('comb.html', restaurant_list=result)
 
 
@@ -220,6 +214,7 @@ def restaurant_post():
 @app.route("/<keyword>", methods=["GET"])
 def restaurant_get(keyword):
     restaurant_list = list(db.restaurants.find({"category": str(keyword)}))
+    restaurant_list = make_restaurants_list(restaurant_list)
     token_receive = request.cookies.get('mytoken')
     if (token_receive == None):
         return render_template('comb.html', restaurant_list=restaurant_list)
@@ -232,24 +227,29 @@ def restaurant_get(keyword):
 
 @app.route("/review", methods=["POST"])
 def review_post():
-    review_list = list(db.review.find({}, {'_id': False}))
-    count = len(review_list) + 1
+    token_receive = request.cookies.get('mytoken')
 
-    name_receive = request.form['name_give']
+    # name_receive = request.form['name_give']
     comment_receive = request.form['comment_give']
-    star_recive = request.form['star_give']
+    star_receive = request.form['star_give']
     place_receive = request.form['place_give']
-
     doc = {
-        'name' : name_receive,
-        'star': star_recive,
+        # 'name' : name_receive,
+        'star': star_receive,
         'comment' : comment_receive,
-        'num' : count,
-        'place_id': place_receive
+        'place_id' : place_receive
     }
 
-    db.review.insert_one(doc)
-    return jsonify({'msg':'리뷰 작성 완료!!'})
+    try:
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+        doc['name'] = payload['id']
+        db.review.insert_one(doc)
+        return jsonify({'msg':'리뷰 작성 완료!!'})
+    except jwt.ExpiredSignatureError:
+        return jsonify({'msg': '로그인 시간이 만료되었습니다.'})
+    except jwt.exceptions.DecodeError:
+        return jsonify({'msg': '로그인 정보가 존재하지 않습니다.'})
+
 
 @app.route("/review", methods=["GET"])
 def review_get():
@@ -258,10 +258,15 @@ def review_get():
 
 @app.route("/review/delete", methods=["POST"])
 def review_delete():
+    token_receive = request.form['token_give']
     del_receive = request.form['del_give']
-    db.review.delete_one({'name':del_receive})
-    print(del_receive)
-    return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
+    place_receive = request.form['place_id']
+
+    if(token_receive == del_receive) :
+        db.review.delete_one({'name': del_receive,'place_id' : place_receive})
+        return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
+    else :
+        return jsonify({'msg':'아이디 정보가 일치하지 않습니다.'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
