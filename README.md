@@ -54,7 +54,9 @@
 | 회원가입_중복아이디 체크   | POST   | /sign_up/check_dup | ID                        | msg: 중복 여부  |
 | 로그인 | POST   | /login            | ID, PW                    | msg: 로그인 완료 |
 | 맛집 추천           | POST   | /post_place       | 카테고리, 별점, 코멘트, 이름, 설명, 주소 | msg: 등록 완료  |
-| 리뷰 작성(평점)       | POST   | /review       | 리뷰, 별점, 작성자 ID, 식당 ID     | msg: 등록 완료  |
+| 카테고리별 맛집 조회      | GET   | /<keyword>      |     카테고리 번호                   |   |
+| 맛집 이름으로 검색           | GET   | /search/<search_name>      | 식당 이름                       |   |
+| 리뷰 작성(평점)       | POST   | /review       | 리뷰, 별점, 작성자 ID(토큰), 식당 ID     | msg: 등록 완료  |
 | 리뷰 목록 조회        | GET    | /review       | -                         | 리뷰 리스트      |
 | 리뷰 삭제           | POST   | /review/delete      | 작성자                       | msg: 삭제 완료  |
 | 정렬              |     |               | -                         | msg:        |
