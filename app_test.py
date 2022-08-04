@@ -233,9 +233,11 @@ def review_post():
         'place_id' : place_receive
     }
 
-    db.review.insert_one(doc)
-    return jsonify({'msg':'리뷰 작성 완료!!'})
-
+    if name_receive is not '' :
+        db.review.insert_one(doc)
+        return jsonify({'msg':'리뷰 작성 완료!!'})
+    else :
+        return jsonify({'msg' : '로그인을 해주세요.'})
 @app.route("/review", methods=["GET"])
 def review_get():
     review_list = list(db.review.find({}, {'_id': False}))
@@ -243,10 +245,15 @@ def review_get():
 
 @app.route("/review/delete", methods=["POST"])
 def review_delete():
+    token_receive = request.form['token_give']
     del_receive = request.form['del_give']
     place_receive = request.form['place_id']
-    db.review.delete_one({'name': del_receive,'place_id' : place_receive})
-    return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
+
+    if(token_receive == del_receive) :
+        db.review.delete_one({'name': del_receive,'place_id' : place_receive})
+        return jsonify({'msg': f'{del_receive}님 리뷰 삭제'})
+    else :
+        return jsonify({'msg':'아이디 정보가 일치하지 않습니다.'})
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
